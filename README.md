@@ -7,3 +7,4 @@ A tool for predicting prices of Amazon Products.
   * If you want to exit the virtual environment, run `deactivate`.
 3. Run `pip install -r requirements.txt` to download all dependencies for project.
 4. Start Coding!
+5. If you install any additional dependencies, run `pip freeze > requirements.txt` to keep track of the libraries in your updated environment.
