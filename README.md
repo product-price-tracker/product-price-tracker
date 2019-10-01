@@ -8,3 +8,22 @@ A tool for predicting prices of Amazon Products.
 3. Run `pip install -r requirements.txt` to download all dependencies for project.
 4. Start Coding!
 5. If you install any additional dependencies, run `pip freeze > requirements.txt` to keep track of the libraries in your updated environment.
+
+# Structure of Data:
+
+```
+{
+  Price: number[],
+  Category: string,
+  Reviews: Review[],
+  Average Current Rating: number,
+  Number of Ratings: number,
+  ASIN: string,
+  Amazon Name: string,
+  Date first Listed: date,
+  Manufacturer: string,
+  Item Weight: number,
+  Dimensions: number[],
+
+}
+```
