@@ -1,6 +1,7 @@
 import keepa
 
 secureKey = open("secureKey.txt", 'r').read()
+
 api = keepa.Keepa(secureKey)
 
 product = api.query("B0775451TT")
