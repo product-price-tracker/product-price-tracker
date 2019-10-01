@@ -1,6 +1,7 @@
 import keepa
+from getAccessKey import getAccessKey
 
-secureKey = open("secureKey.txt", 'r').read()
+secureKey = getAccessKey()
 
 api = keepa.Keepa(secureKey)
 
