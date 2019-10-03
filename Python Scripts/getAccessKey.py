@@ -1,3 +1,3 @@
 def getAccessKey():
     with open('../secureKey.txt', 'r') as f:
-        return f.read()[:-1]
+        return f.read()
