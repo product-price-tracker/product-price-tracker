@@ -12,7 +12,7 @@ A tool for predicting prices of Amazon Products.
 # Structure of Data:
 
 ```
-{
+{ 
   Price: number[],
   Category: string,
   Reviews: Review[],

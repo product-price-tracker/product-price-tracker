@@ -1,14 +1,73 @@
 import keepa
 import matplotlib.pyplot as plt
+import pandas as pd
+import datetime
 
 from getAccessKey import getAccessKey
 
+from pandas.plotting import register_matplotlib_converters
+
+register_matplotlib_converters()
 
 def get_data_for_product(asin):
     accesskey = getAccessKey()
-    print(accesskey)
     api = keepa.Keepa(accesskey)
 
-    products = api.query()
+    products = api.query(asin)
+    history = products[0]['data']
+    data = {}
 
-    print(products[0].keys())
+    # keepa.plot_product(products[0])
+
+    for key in ['AMAZON', 'NEW', 'USED', 'SALES', 'COUNT_NEW', 'COUNT_USED', 'LISTPRICE', 'RATING', 'COUNT_REVIEWS']:
+        if key not in history:
+            continue
+        # plt.step(history[key], history[key + '_time'], where='pre')
+
+        start_time = history[key + '_time'][0].replace(microsecond=0,second=0,minute=0,hour=0)
+        end_time = history[key + '_time'][-1].replace(microsecond=0,second=0,minute=0,hour=0)
+
+        time = start_time
+        furthest_time_index = 0
+        data[key] = []
+        data[key + '_time'] = []
+        while time < end_time:
+            # Find latest price update for this day, and set that as the price for this day.
+            while furthest_time_index < len(history[key + '_time']) and history[key + '_time'][furthest_time_index] < time + datetime.timedelta(days=1):
+
+                furthest_time_index += 1
+
+            data[key].append(history[key][furthest_time_index-1])
+            data[key + '_time'].append(time)
+            time += datetime.timedelta(days=1)
+
+        # print(data[key])
+        # print(data[key + '_time'])
+        plt.figure(figsize=(16, 8))
+        plt.xlabel('Time')
+        plt.ylabel(key)
+        plt.title(key + ' over Time')
+        plt.plot(data[key + '_time'], data[key])
+        plt.show()
+
+    return data
+
+
+
+    # print(products[0]['data'].keys())
+    # print(len(products[0]['data']['AMAZON']))
+    # print(len(products[0]['data']['AMAZON_time'])) # _times correspond to the price it changed to at that time.
+    # Make our predictions correspod to the start of discrete, unfiorm time periods
+
+
+
+
+
+    # df = pd.read_csv(products[0]['data']))
+    # print(df)
+
+get_data_for_product('B0047E0EII')
+
+'''
+dict_keys(['csv', 'categories', 'imagesCSV', 'manufacturer', 'title', 'lastUpdate', 'lastPriceChange', 'rootCategory', 'productType', 'parentAsin', 'variationCSV', 'asin', 'domainId', 'type', 'hasReviews', 'ean', 'upc', 'mpn', 'trackingSince', 'brand', 'label', 'department', 'publisher', 'productGroup', 'partNumber', 'studio', 'genre', 'model', 'color', 'size', 'edition', 'platform', 'format', 'packageHeight', 'packageLength', 'packageWidth', 'packageWeight', 'packageQuantity', 'isAdultProduct', 'isEligibleForTradeIn', 'isEligibleForSuperSaverShipping', 'offers', 'buyBoxSellerIdHistory', 'isRedirectASIN', 'isSNS', 'author', 'binding', 'numberOfItems', 'numberOfPages', 'publicationDate', 'releaseDate', 'languages', 'lastRatingUpdate', 'ebayListingIds', 'lastEbayUpdate', 'eanList', 'upcList', 'liveOffersOrder', 'frequentlyBoughtTogether', 'features', 'description', 'hazardousMaterialType', 'promotions', 'newPriceIsMAP', 'coupon', 'availabilityAmazon', 'listedSince', 'fbaFees', 'variations', 'itemHeight', 'itemLength', 'itemWidth', 'itemWeight', 'stats', 'offersSuccessful', 'g', 'categoryTree', 'data'])
+'''
