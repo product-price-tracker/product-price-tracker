@@ -9,7 +9,7 @@ from pandas.plotting import register_matplotlib_converters
 
 register_matplotlib_converters()
 
-def get_data_for_product(asin):
+def get_data_for_product(asin, plot=False):
     accesskey = getAccessKey()
     api = keepa.Keepa(accesskey)
 
@@ -22,7 +22,9 @@ def get_data_for_product(asin):
     start_time = history[base_key + '_time'][0].replace(microsecond=0,second=0,minute=0,hour=0)
     end_time = history[base_key + '_time'][-1].replace(microsecond=0,second=0,minute=0,hour=0)
 
-    for key in ['AMAZON', 'NEW', 'USED', 'SALES', 'COUNT_NEW', 'COUNT_USED', 'LISTPRICE', 'RATING', 'COUNT_REVIEWS']:
+    potential_keys = ['AMAZON', 'NEW', 'USED', 'SALES', 'COUNT_NEW', 'COUNT_USED', 'LISTPRICE', 'RATING', 'COUNT_REVIEWS']
+
+    for key in potential_keys:
         if key not in history:
             continue
         # plt.step(history[key], history[key + '_time'], where='pre')
@@ -43,13 +45,22 @@ def get_data_for_product(asin):
 
         # print(data[key])
         # print(data[key + '_time'])
-        plt.figure(figsize=(16, 8))
-        plt.xlabel('Time')
-        plt.ylabel(key)
-        plt.title(key + ' over Time')
-        plt.plot(data[key + '_time'], data[key])
-        plt.show()
-    return data
+        if plot:
+            plt.figure(figsize=(16, 8))
+            plt.xlabel('Time')
+            plt.ylabel(key)
+            plt.title(key + ' over Time')
+            plt.plot(data[key + '_time'], data[key])
+            plt.show()
+
+    df = pd.DataFrame()
+    for key in potential_keys:
+        if key in data:
+            df[key] = data[key]
+            df['Time'] = data[key + '_time']
+
+    print(df.head(100))
+    return df
 
 
 
