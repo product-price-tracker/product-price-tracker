@@ -18,14 +18,14 @@ def get_data_for_product(asin):
     data = {}
 
     # keepa.plot_product(products[0])
+    base_key = 'AMAZON' # Whatever key we're using to set the time
+    start_time = history[base_key + '_time'][0].replace(microsecond=0,second=0,minute=0,hour=0)
+    end_time = history[base_key + '_time'][-1].replace(microsecond=0,second=0,minute=0,hour=0)
 
     for key in ['AMAZON', 'NEW', 'USED', 'SALES', 'COUNT_NEW', 'COUNT_USED', 'LISTPRICE', 'RATING', 'COUNT_REVIEWS']:
         if key not in history:
             continue
         # plt.step(history[key], history[key + '_time'], where='pre')
-
-        start_time = history[key + '_time'][0].replace(microsecond=0,second=0,minute=0,hour=0)
-        end_time = history[key + '_time'][-1].replace(microsecond=0,second=0,minute=0,hour=0)
 
         time = start_time
         furthest_time_index = 0
@@ -49,7 +49,6 @@ def get_data_for_product(asin):
         plt.title(key + ' over Time')
         plt.plot(data[key + '_time'], data[key])
         plt.show()
-
     return data
 
 
