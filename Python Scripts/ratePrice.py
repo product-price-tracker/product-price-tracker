@@ -10,7 +10,7 @@ def rate_price(asin):
     df = get_data_for_product(asin, plot=False)
     currentPrice = df.at[len(df) - 1, 'NEW']
     meanHistoryPrice = df.loc[:, 'NEW'].mean()
-    return currentPrice < meanHistoryPrice
+    return currentPrice / meanHistoryPrice
 
 def current_price(asin):
     df = get_data_for_product(asin)
