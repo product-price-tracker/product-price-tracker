@@ -126,3 +126,7 @@ dmypy.json
 
 # Access Key
 secureKey.txt
+
+# Data
+Data/*
+!Data/.gitkeep

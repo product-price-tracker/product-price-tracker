@@ -9,7 +9,7 @@ from pandas.plotting import register_matplotlib_converters
 
 register_matplotlib_converters()
 
-def get_data_for_product(asin, plot=False):
+def get_data_for_product(asin, plot=True):
     accesskey = getAccessKey()
     api = keepa.Keepa(accesskey)
 
@@ -76,7 +76,8 @@ def get_data_for_product(asin, plot=False):
     # df = pd.read_csv(products[0]['data']))
     # print(df)
 
-get_data_for_product('B0047E0EII')
+if __name__ == "__main__":
+    get_data_for_product('B0047E0EII')
 
 '''
 dict_keys(['csv', 'categories', 'imagesCSV', 'manufacturer', 'title', 'lastUpdate', 'lastPriceChange', 'rootCategory', 'productType', 'parentAsin', 'variationCSV', 'asin', 'domainId', 'type', 'hasReviews', 'ean', 'upc', 'mpn', 'trackingSince', 'brand', 'label', 'department', 'publisher', 'productGroup', 'partNumber', 'studio', 'genre', 'model', 'color', 'size', 'edition', 'platform', 'format', 'packageHeight', 'packageLength', 'packageWidth', 'packageWeight', 'packageQuantity', 'isAdultProduct', 'isEligibleForTradeIn', 'isEligibleForSuperSaverShipping', 'offers', 'buyBoxSellerIdHistory', 'isRedirectASIN', 'isSNS', 'author', 'binding', 'numberOfItems', 'numberOfPages', 'publicationDate', 'releaseDate', 'languages', 'lastRatingUpdate', 'ebayListingIds', 'lastEbayUpdate', 'eanList', 'upcList', 'liveOffersOrder', 'frequentlyBoughtTogether', 'features', 'description', 'hazardousMaterialType', 'promotions', 'newPriceIsMAP', 'coupon', 'availabilityAmazon', 'listedSince', 'fbaFees', 'variations', 'itemHeight', 'itemLength', 'itemWidth', 'itemWeight', 'stats', 'offersSuccessful', 'g', 'categoryTree', 'data'])
