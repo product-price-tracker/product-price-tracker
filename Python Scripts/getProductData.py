@@ -9,7 +9,7 @@ from pandas.plotting import register_matplotlib_converters
 
 register_matplotlib_converters()
 
-def get_data_for_product(asin, plot=True):
+def get_data_for_product(asin, plot=False):
     accesskey = getAccessKey()
     api = keepa.Keepa(accesskey)
 

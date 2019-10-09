@@ -1,0 +1,129 @@
+
+import keras
+import pandas as pd
+import numpy as np
+
+from keras.layers import Input, LSTM, Dense, Activation
+from keras.models import Model
+
+import datetime
+
+import matplotlib.pyplot as plt
+
+
+def createNextPriceModel(n_input, n_output, time_steps=50, lstm_units=100):
+    in_layer = Input((time_steps, n_input))
+    lstm = LSTM(lstm_units, return_sequences=False, dropout=0.5)(in_layer)
+    dense = Dense(n_output)(lstm)
+    activation = Activation('linear')(dense)
+
+    model = Model(in_layer, [activation])
+
+    model.compile(optimizer='adam', loss='mse')
+
+    return model
+
+def trainNextPriceModel(model, x_train, y_train, num_epochs=10):
+    model.fit(x_train, y_train, epochs=num_epochs, validation_split=0.2)
+    return model
+
+def getProductData(productDf, price='NEW'):
+    # print(productDf)
+    y = np.array(productDf['Next '+price]).reshape(len(productDf['Next '+price]),1)
+    # print(y_train[50:60])
+    # print(np.array(productDf['NEW'][50:60]))
+
+    x_cols = ['AMAZON', 'NEW', 'USED']
+    x = np.zeros((len(y), len(x_cols)))
+    for i in range(len(x_cols)):
+        x[:, i] = productDf[x_cols[i]]
+
+    return x, y
+
+def getSequencesFromData(x_raw, y_raw, time_steps, train_split=0.8):
+    num_sequences = x_raw.shape[0]-time_steps+1
+    x = np.zeros((num_sequences, time_steps, x_raw.shape[1]))
+    y = np.zeros((num_sequences, y_raw.shape[1]))
+
+    for offset in range(num_sequences):
+        x[offset,:,:] = x_raw[offset:offset+time_steps,:]
+        y[offset,:] = y_raw[offset+time_steps-1,:]
+
+    # Splitting
+    split_index = int(num_sequences*train_split)
+
+    x_train = x[:split_index]
+    x_test = x[split_index:]
+
+    y_train = y[:split_index]
+    y_test = y[split_index:]
+
+
+    return x_train, y_train, x_test, y_test
+
+
+def loadData(path):
+    return pd.read_pickle(path)
+
+def prepData(df, days_ahead=1, price='NEW'):
+    df['Next '+price] = df[price].shift(-1*days_ahead)
+    df = df.fillna(0)
+    return df
+
+def create_train_predict(path='../Data/B00BWU3HNY.pkl', time_steps=150, days_ahead=1, num_epochs=10, price='NEW'):
+    time_steps = 150
+    df = loadData('../Data/B00BWU3HNY.pkl')
+    df = prepData(df, days_ahead=days_ahead, price='NEW')
+
+    x_raw, y_raw = getProductData(df, price='NEW')
+    x_train, y_train, x_test, y_test = getSequencesFromData(x_raw, y_raw, time_steps = time_steps)
+    n_input = x_train.shape[2]
+    n_output = y_train.shape[1]
+
+    model = createNextPriceModel(n_input, n_output, time_steps = time_steps)
+    model = trainNextPriceModel(model, x_train, y_train, num_epochs=num_epochs)
+    return model.predict(x_test)
+    # print(model.evaluate(x_test, y_test))
+
+def predict_upcoming_prices(days_ahead=7, time_steps=150, num_epochs=10, path='../Data/B00BWU3HNY.pkl', price='NEW'):
+    predictions = []
+    for days_ahead in np.array(range(days_ahead))+1:
+        print('Creating Model for {} days ahead.'.format(days_ahead))
+        prediction = create_train_predict(path='../Data/B00BWU3HNY.pkl', time_steps=time_steps, days_ahead=days_ahead, num_epochs=num_epochs, price='NEW')
+        prediction_value = prediction[-1,0]
+        predictions.append(prediction_value)
+    return predictions
+
+def plot_data_and_predictions(predictions, price='NEW'):
+    # TODO parameterize df
+    df = loadData('../Data/B00BWU3HNY.pkl')
+    # df = prepData(df)
+
+    prediction_length = len(predictions)
+
+    data_times = list(df['Time'])
+    data_values = list(df[price])
+
+    prediction_times = [data_times[-1] + datetime.timedelta(days=days) for days in range(prediction_length+1)]
+    prediction_values = [data_values[-1]] + predictions
+
+    print(prediction_values)
+
+    plt.figure(figsize=(12,12))
+    plt.title(price+' Prediction')
+    plt.xlabel('Time')
+    plt.ylabel(price+' Price')
+    plt.plot(data_times, data_values, label='Data')
+    plt.plot(prediction_times, prediction_values, label='Prediction')
+    plt.legend()
+    plt.show()
+
+def main():
+    price='AMAZON'
+    predictions = predict_upcoming_prices(14, time_steps=180, num_epochs=10, price=price)
+
+    plot_data_and_predictions(predictions, price=price)
+
+
+if __name__ == "__main__":
+    main()
