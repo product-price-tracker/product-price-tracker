@@ -12,6 +12,7 @@ def rate_price(asin):
 
     if dflength == -1:
         print("Error: no price data for the product: " + asin)
+        return -1
     else:
         currentPrice = df.at[dflength, 'NEW']
         meanHistoryPrice = df.loc[:, 'NEW'].mean()
