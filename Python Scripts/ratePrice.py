@@ -8,9 +8,14 @@ from getProductData import get_data_for_product
 def rate_price(asin):
 
     df = get_data_for_product(asin, plot=False)
-    currentPrice = df.at[len(df) - 1, 'NEW']
-    meanHistoryPrice = df.loc[:, 'NEW'].mean()
-    return currentPrice / meanHistoryPrice
+    dflength = len(df) - 1
+
+    if dflength == -1:
+        print("Error: no price data for the product: " + asin)
+    else:
+        currentPrice = df.at[dflength, 'NEW']
+        meanHistoryPrice = df.loc[:, 'NEW'].mean()
+        return currentPrice / meanHistoryPrice
 
 def current_price(asin):
     df = get_data_for_product(asin)
