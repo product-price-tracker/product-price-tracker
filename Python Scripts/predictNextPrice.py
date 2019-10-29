@@ -5,15 +5,20 @@ import numpy as np
 
 from keras.layers import Input, LSTM, Dense, Activation
 from keras.models import Model
+from keras.regularizers import l2
+
+from sklearn.preprocessing import MinMaxScaler
 
 import datetime
 
 import matplotlib.pyplot as plt
 
 
-def createNextPriceModel(n_input, n_output, time_steps=50, lstm_units=100):
+def createNextPriceModel(n_input, n_output, time_steps=50, lstm_units=2, reg_param=1e-4):
     in_layer = Input((time_steps, n_input))
-    lstm = LSTM(lstm_units, return_sequences=False, dropout=0.5)(in_layer)
+    lstm = LSTM(lstm_units, return_sequences=False, activity_regularizer=l2(reg_param), dropout=0.0)(in_layer)
+    # lstm = LSTM(lstm_units, return_sequences=False, activity_regularizer=l2(reg_param), dropout=0.0)(lstm)
+    # lstm = LSTM(lstm_units*100, return_sequences=False, activity_regularizer=l2(reg_param), dropout=0.1)(lstm)
     dense = Dense(n_output)(lstm)
     activation = Activation('linear')(dense)
 
@@ -29,11 +34,13 @@ def trainNextPriceModel(model, x_train, y_train, num_epochs=10):
 
 def getProductData(productDf, price='NEW'):
     # print(productDf)
+    # TODO: implement MIN_UNUSED
+    # productDf['MIN_UNUSED'] = np.min(productDf['NEW'], productDf['AMAZON'])
     y = np.array(productDf['Next '+price]).reshape(len(productDf['Next '+price]),1)
     # print(y_train[50:60])
     # print(np.array(productDf['NEW'][50:60]))
 
-    x_cols = ['AMAZON', 'NEW', 'USED']
+    x_cols = ['AMAZON', 'NEW' 'SALES']
     x = np.zeros((len(y), len(x_cols)))
     for i in range(len(x_cols)):
         x[:, i] = productDf[x_cols[i]]
@@ -73,25 +80,36 @@ def prepData(df, days_ahead=1, price='NEW'):
 def create_train_predict(path='../Data/B00BWU3HNY.pkl', time_steps=150, days_ahead=1, num_epochs=10, price='NEW'):
     time_steps = 150
     df = loadData('../Data/B00BWU3HNY.pkl')
-    df = prepData(df, days_ahead=days_ahead, price='NEW')
+    df = prepData(df, days_ahead=days_ahead, price=price)
 
-    x_raw, y_raw = getProductData(df, price='NEW')
-    x_train, y_train, x_test, y_test = getSequencesFromData(x_raw, y_raw, time_steps = time_steps)
+    x_raw, y_raw = getProductData(df, price=price)
+    # TODO: Fit on only train data!
+    x_scaler = MinMaxScaler()
+    y_scaler = MinMaxScaler()
+    x_scaler.fit(x_raw)
+    y_scaler.fit(y_raw)
+    x = x_scaler.transform(x_raw)
+    y = y_scaler.transform(y_raw)
+    x_train, y_train, x_test, y_test = getSequencesFromData(x, y, time_steps = time_steps)
     n_input = x_train.shape[2]
     n_output = y_train.shape[1]
 
     model = createNextPriceModel(n_input, n_output, time_steps = time_steps)
     model = trainNextPriceModel(model, x_train, y_train, num_epochs=num_epochs)
-    return model.predict(x_test)
+    predictions = model.predict(x_test)
+    scaled_predictions = y_scaler.inverse_transform(predictions)
+    prediction = scaled_predictions[-200,0]
+    return prediction
+
+
     # print(model.evaluate(x_test, y_test))
 
 def predict_upcoming_prices(days_ahead=7, time_steps=150, num_epochs=10, path='../Data/B00BWU3HNY.pkl', price='NEW'):
     predictions = []
     for days_ahead in np.array(range(days_ahead))+1:
         print('Creating Model for {} days ahead.'.format(days_ahead))
-        prediction = create_train_predict(path='../Data/B00BWU3HNY.pkl', time_steps=time_steps, days_ahead=days_ahead, num_epochs=num_epochs, price='NEW')
-        prediction_value = prediction[-1,0]
-        predictions.append(prediction_value)
+        prediction = create_train_predict(path='../Data/B00BWU3HNY.pkl', time_steps=time_steps, days_ahead=days_ahead, num_epochs=num_epochs, price=price)
+        predictions.append(prediction)
     return predictions
 
 def plot_data_and_predictions(predictions, price='NEW'):
@@ -120,7 +138,7 @@ def plot_data_and_predictions(predictions, price='NEW'):
 
 def main():
     price='AMAZON'
-    predictions = predict_upcoming_prices(14, time_steps=180, num_epochs=10, price=price)
+    predictions = predict_upcoming_prices(3, time_steps=365, num_epochs=5, price=price)
 
     plot_data_and_predictions(predictions, price=price)
 
