@@ -152,7 +152,7 @@ def main():
     price='AMAZON'
     asin='B00BWU3HNY'
     # predictions = predict_upcoming_prices(3, time_steps=365, num_epochs=10, price=price, asin=asin)
-    predictions = predict_upcoming_prices(3, time_steps=365, num_epochs=5, price=price, asin=asin)
+    predictions = predict_upcoming_prices(days_ahead=3, time_steps=365, num_epochs=5, price=price, asin=asin)
 
     plot_data_and_predictions(predictions, asin=asin, price=price)
 
