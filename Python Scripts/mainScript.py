@@ -14,7 +14,7 @@ parser.add_argument("details", default=0, nargs='?', help="number of products to
 
 args = parser.parse_args()
 
-bool asinIsCategory = False
+asinIsCategory = False
 # Lee to do - add check so that user can input 'category' instead of an ASIN and receive a prompt to enter the category
 # (from there they can receive information about the items in that category)
 

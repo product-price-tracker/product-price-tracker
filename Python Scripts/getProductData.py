@@ -76,6 +76,10 @@ def get_data_for_product(asin, plot=False):
     # df = pd.read_csv(products[0]['data']))
     # print(df)
 
+def save_data_for_product(asin):
+    df = get_data_for_product(asin, plot=False)
+    df.to_pickle('../Data/{}.pkl'.format(str(asin)))
+
 if __name__ == "__main__":
     print(get_data_for_product('B0047E0EII').head(100))
 

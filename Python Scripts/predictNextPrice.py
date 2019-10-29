@@ -13,6 +13,10 @@ import datetime
 
 import matplotlib.pyplot as plt
 
+from getProductData import save_data_for_product
+
+import os
+
 
 def createNextPriceModel(n_input, n_output, time_steps=50, lstm_units=2, reg_param=1e-4):
     in_layer = Input((time_steps, n_input))
@@ -32,7 +36,7 @@ def trainNextPriceModel(model, x_train, y_train, num_epochs=10):
     model.fit(x_train, y_train, epochs=num_epochs, validation_split=0.2)
     return model
 
-def getProductData(productDf, price='NEW'):
+def getProductDf(productDf, price='NEW'):
     # print(productDf)
     # TODO: implement MIN_UNUSED
     # productDf['MIN_UNUSED'] = np.min(productDf['NEW'], productDf['AMAZON'])
@@ -40,7 +44,7 @@ def getProductData(productDf, price='NEW'):
     # print(y_train[50:60])
     # print(np.array(productDf['NEW'][50:60]))
 
-    x_cols = ['AMAZON', 'NEW' 'SALES']
+    x_cols = ['AMAZON', 'NEW', 'SALES']
     x = np.zeros((len(y), len(x_cols)))
     for i in range(len(x_cols)):
         x[:, i] = productDf[x_cols[i]]
@@ -48,7 +52,12 @@ def getProductData(productDf, price='NEW'):
     return x, y
 
 def getSequencesFromData(x_raw, y_raw, time_steps, train_split=0.8):
+
     num_sequences = x_raw.shape[0]-time_steps+1
+    if (num_sequences <= 0):
+        print(x_raw.shape)
+        print(num_sequences)
+        assert num_sequences > 0
     x = np.zeros((num_sequences, time_steps, x_raw.shape[1]))
     y = np.zeros((num_sequences, y_raw.shape[1]))
 
@@ -78,11 +87,10 @@ def prepData(df, days_ahead=1, price='NEW'):
     return df
 
 def create_train_predict(path='../Data/B00BWU3HNY.pkl', time_steps=150, days_ahead=1, num_epochs=10, price='NEW'):
-    time_steps = 150
-    df = loadData('../Data/B00BWU3HNY.pkl')
+    df = loadData(path)
     df = prepData(df, days_ahead=days_ahead, price=price)
 
-    x_raw, y_raw = getProductData(df, price=price)
+    x_raw, y_raw = getProductDf(df, price=price)
     # TODO: Fit on only train data!
     x_scaler = MinMaxScaler()
     y_scaler = MinMaxScaler()
@@ -98,23 +106,27 @@ def create_train_predict(path='../Data/B00BWU3HNY.pkl', time_steps=150, days_ahe
     model = trainNextPriceModel(model, x_train, y_train, num_epochs=num_epochs)
     predictions = model.predict(x_test)
     scaled_predictions = y_scaler.inverse_transform(predictions)
-    prediction = scaled_predictions[-200,0]
+    prediction = scaled_predictions[-1*time_steps+1,0]
     return prediction
 
 
     # print(model.evaluate(x_test, y_test))
 
-def predict_upcoming_prices(days_ahead=7, time_steps=150, num_epochs=10, path='../Data/B00BWU3HNY.pkl', price='NEW'):
+def predict_upcoming_prices(days_ahead=7, time_steps=150, num_epochs=10, asin='B00BWU3HNY', price='NEW'):
+    path = '../Data/{}.pkl'.format(str(asin))
+    if not os.path.isfile(path):
+        save_data_for_product(asin)
+
     predictions = []
     for days_ahead in np.array(range(days_ahead))+1:
         print('Creating Model for {} days ahead.'.format(days_ahead))
-        prediction = create_train_predict(path='../Data/B00BWU3HNY.pkl', time_steps=time_steps, days_ahead=days_ahead, num_epochs=num_epochs, price=price)
+        prediction = create_train_predict(path=path, time_steps=time_steps, days_ahead=days_ahead, num_epochs=num_epochs, price=price)
         predictions.append(prediction)
     return predictions
 
-def plot_data_and_predictions(predictions, price='NEW'):
+def plot_data_and_predictions(predictions, asin='B00BWU3HNY', price='NEW'):
     # TODO parameterize df
-    df = loadData('../Data/B00BWU3HNY.pkl')
+    df = loadData('../Data/{}.pkl'.format(asin))
     # df = prepData(df)
 
     prediction_length = len(predictions)
@@ -138,9 +150,11 @@ def plot_data_and_predictions(predictions, price='NEW'):
 
 def main():
     price='AMAZON'
-    predictions = predict_upcoming_prices(3, time_steps=365, num_epochs=5, price=price)
+    asin='B00BWU3HNY'
+    # predictions = predict_upcoming_prices(3, time_steps=365, num_epochs=10, price=price, asin=asin)
+    predictions = predict_upcoming_prices(days_ahead=3, time_steps=365, num_epochs=5, price=price, asin=asin)
 
-    plot_data_and_predictions(predictions, price=price)
+    plot_data_and_predictions(predictions, asin=asin, price=price)
 
 
 if __name__ == "__main__":
