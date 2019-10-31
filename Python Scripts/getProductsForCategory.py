@@ -11,7 +11,7 @@ def getProductsForCategory(rootCategory=172282, number_of_products=50): # page s
     # A list of all the product ASINs
     products = api.product_finder(product_parms)
 
-    print(products)
+    #print(products)
     return products
 
 def getProductDataForASINs(asins):
