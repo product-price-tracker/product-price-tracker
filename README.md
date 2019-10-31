@@ -65,4 +65,5 @@ getMostUnderpriced:
 
 mainScript:
 	Runs a command-line interface from which functions can be called.
-	Syntax is "python mainScript.py <command> <ASIN or "category"> <time period> [number of products] [-h]"
+	Syntax is "python mainScript.py <command> <ASIN or "category"> <time period> [number of products] [-h]".  
+	Run "python mainScript.py -h" for help. 
