@@ -130,3 +130,6 @@ secureKey.txt
 # Data
 Data/*
 !Data/.gitkeep
+!Data/Clean
+Data/Clean/*
+!Data/Clean/.gitkeep
