@@ -27,3 +27,42 @@ A tool for predicting prices of Amazon Products.
 
 }
 ```
+
+We have a number of Python files with functions that perform analyses on
+ any given Amazon product. Most of these take as a parameter an ASIN or other
+ Amazon identifier, but also can be run as scripts that perform the same
+ function on a default product or category.
+As of November 4, we have the following functions:
+
+getAccessKey:
+	Our system makes use of the Keepa API for getting our Amazon price data.
+	This function reads a file for the secure key needed to access the
+	 Keepa API.
+
+getProductData:
+	This function gets all historical price data for the input ASIN
+	 on one-day intervals.
+
+getProductsForCategory:
+	This function returns the ASINs of all products in a category specified
+	 by the Amazon Category ID input.
+
+predictNextPrice:
+
+
+ratePrice:
+	For the ASIN input, this function calculated a historical average price,
+	 and returns a rating of the current price in reference to the historical
+	 price. The rating is simply currentPrice / historicalMeanPrice. A lower
+	 rating implies a better current price for a buyer.
+	If the price dataset received is empty, returns -1.
+
+getMostUnderpriced:
+	Takes a list of ASINs and ranks the products by price rating as per the
+	 ratePrice method. Returns a list of pairs (ASIN, priceRating) ordered
+	 by priceRating ascending (best deals first). If ratePrice returns -1
+	 for any ASIN, i.e. no price data is received, then that result is omitted.
+
+mainScript:
+	Runs a command-line interface from which functions can be called.
+	Syntax is "py mainScript.py <command> <ASIN> <time>"
