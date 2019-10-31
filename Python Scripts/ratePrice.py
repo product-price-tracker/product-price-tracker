@@ -11,7 +11,7 @@ def rate_price(asin):
     dflength = len(df) - 1
 
     if dflength == -1:
-        print("Error: no price data for the product: " + asin)
+        print("No price data for the product: " + asin)
         return -1
     else:
         currentPrice = df.at[dflength, 'NEW']
