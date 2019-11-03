@@ -8,10 +8,10 @@ from predictNextPrice import predict_upcoming_prices
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("command", choices=['historic', 'predict', 'predictSequence', 'findFutureMin'], help="command to be run - required")
-parser.add_argument("ASIN", help="the ASIN of interest")
-parser.add_argument("time", choices=['day', 'week', 'month', 'year'], help="the root category of products")
-parser.add_argument("numProducts", default=50, nargs='?', help="number of products")
+parser.add_argument("command", choices=['historic', 'predict'], help="command to be run (required)")
+parser.add_argument("ASIN", help="the ASIN of interest, or 'category' to enter a category")
+parser.add_argument("time", choices=['day', 'week', 'month', 'year'], help="time period to predict")
+parser.add_argument("numProducts", default=50, nargs='?', help="number of products (default 50)")
 
 args = parser.parse_args()
 
@@ -25,16 +25,14 @@ elif (args.time == 'month'):
 elif (args.time == 'year'):
     numDays = 365
 
-bool asinIsCategory = False
+asinIsCategory = False
 if (args.ASIN == "category"):
     cat = input("Enter root category number:")
     asinIsCategory = True
 
 if (args.command == "historic"):
     print(rate_price(args.ASIN))
-elif(args.command == "historic" and asinIsCategory == True):  
+elif (args.command == "historic" and asinIsCategory == True):  
     getProductDataForCategory(cat, args.numProducts)
-elif(args.command == "predict"):
-    predict_upcoming_prices(numDays, 150, 10, args.ASIN, price='NEW')
-elif(args.command == "predictSequence"):
-elif(args.command == "findFutureMin"):
+elif (args.command == "predict"):
+   predict_upcoming_prices(numDays, 150, 10, args.ASIN, price='NEW')
