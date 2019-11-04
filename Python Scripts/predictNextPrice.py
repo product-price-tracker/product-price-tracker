@@ -86,7 +86,7 @@ def prepData(df, days_ahead=1, price='NEW'):
     df = df.fillna(0)
     return df
 
-def create_train_predict(path='../Data/B00BWU3HNY.pkl', time_steps=150, days_ahead=1, num_epochs=10, price='NEW'):
+def create_train_predict(path='../Data/Clean/B00BWU3HNY.pkl', time_steps=150, days_ahead=1, num_epochs=10, price='NEW'):
     df = loadData(path)
     df = prepData(df, days_ahead=days_ahead, price=price)
 
@@ -114,19 +114,22 @@ def create_train_predict(path='../Data/B00BWU3HNY.pkl', time_steps=150, days_ahe
 
 def predict_upcoming_prices(days_ahead=7, time_steps=150, num_epochs=10, asin='B00BWU3HNY', price='NEW'):
     path = '../Data/{}.pkl'.format(str(asin))
+    clean_path = '../Data/Clean/{}.pkl'.format(str(asin))
     if not os.path.isfile(path):
         save_data_for_product(asin)
+    if not os.path.isfile(clean_path):
+        save_clean_data_for_product(asin)
 
     predictions = []
     for days_ahead in np.array(range(days_ahead))+1:
         print('Creating Model for {} days ahead.'.format(days_ahead))
-        prediction = create_train_predict(path=path, time_steps=time_steps, days_ahead=days_ahead, num_epochs=num_epochs, price=price)
+        prediction = create_train_predict(path=clean_path, time_steps=time_steps, days_ahead=days_ahead, num_epochs=num_epochs, price=price)
         predictions.append(prediction)
     return predictions
 
 def plot_data_and_predictions(predictions, asin='B00BWU3HNY', price='NEW'):
     # TODO parameterize df
-    df = loadData('../Data/{}.pkl'.format(asin))
+    df = loadData('../Data/Clean/{}.pkl'.format(asin))
     # df = prepData(df)
 
     prediction_length = len(predictions)

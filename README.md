@@ -9,10 +9,14 @@ A tool for predicting prices of Amazon Products.
 4. Start Coding!
 5. If you install any additional dependencies, run `pip freeze > requirements.txt` to keep track of the libraries in your updated environment.
 
+# Running the program:
+1. In a command line, navigate to `Python Scripts`
+2. Run `python mainScript` with appropriate arguments. Running with no arguments will give help on what arguments are possible.
+
 # Structure of Data:
 
 ```
-{ 
+{
   Price: number[],
   Category: string,
   Reviews: Review[],
@@ -32,7 +36,7 @@ We have a number of Python files with functions that perform analyses on
  any given Amazon product. Most of these take as a parameter an ASIN or other
  Amazon identifier, but also can be run as scripts that perform the same
  function on a default product or category.
-As of November 4, we have the following functions:
+As of November 4, we have the following scripts:
 
 getAccessKey:
 	Our system makes use of the Keepa API for getting our Amazon price data.
@@ -48,7 +52,11 @@ getProductsForCategory:
 	 by the Amazon Category ID input.
 
 predictNextPrice:
-
+  The purpose of this script is to make multiple predictions, one for each
+    day from 1 to n days in the future using an LSTM. Doing this, we create a
+    sequence of predicted prices for the next n days in the future, and can
+    predict both the minimum and maximum prices and when they will occur within
+    this time period.
 
 ratePrice:
 	For the ASIN input, this function calculated a historical average price,
@@ -66,4 +74,4 @@ getMostUnderpriced:
 mainScript:
 	Runs a command-line interface from which functions can be called.
 	Syntax is "python mainScript.py <command> <ASIN or "category"> <time period> [number of products] [-h]".  
-	Run "python mainScript.py -h" for help. 
+	Run "python mainScript.py -h" for help.
