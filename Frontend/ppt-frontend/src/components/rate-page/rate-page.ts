@@ -8,5 +8,15 @@ import Page from '../page/index.vue'
   },
 })
 export default class RatePage extends Page {
+  asin: string = "";
+  priceRating: number = 0;
 
+  get priceRatingColor() {
+    return Math.log(this.priceRating);
+  }
+
+  onRate() {
+    // TODO Make HTTP Request to rate price.
+    this.priceRating = 1;
+  }
 }

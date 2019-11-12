@@ -1,5 +1,8 @@
 
 <section class="rate-page">
-  <h1>rate-page Component</h1>
-</section>
+  <h1>Price Rating</h1>
+  <input v-model="asin" placeholder="ASIN" style="margin-top: 3rem; margin-bottom: 10rem;">
+  <button @click="onRate()">Rate</button>
 
+  <h2>Price Rating: {{priceRating}}</h2>
+</section>

@@ -1,5 +1,11 @@
 
 <section class="history-page">
-  <h1>history-page Component</h1>
+  <h1>Price History</h1>
+  <input v-model="asin" placeholder="ASIN" style="margin-top: 3rem; margin-bottom: 10rem;">
+  <button @click="onSelectAsin()">Select</button>
+  <select v-model="price">
+    <option disabled selected>Price</option>
+    <option v-for="p in prices">{{p}}</option>
+  </select>
+  <button @click="onPredict()">Get History</button>
 </section>
-

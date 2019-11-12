@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <toolbar @newPage="onNewPage"/>
+    <toolbar @newPage="onNewPage" style="margin-bottom: 2rem;"/>
     <home-page v-if="currentPage==0"/>
     <predict-page v-if="currentPage==1"/>
     <history-page v-if="currentPage==2"/>

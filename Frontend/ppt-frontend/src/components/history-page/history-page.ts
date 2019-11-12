@@ -8,5 +8,5 @@ import Page from '../page/index.vue'
   },
 })
 export default class HistoryPage extends Page {
-
+  asin: string = "";
 }
