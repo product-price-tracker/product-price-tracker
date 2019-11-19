@@ -1,6 +1,9 @@
 import { Component, Prop, Vue, Ref } from 'vue-property-decorator';
 
-import Page from '../page/index.vue'
+import Page from '../page/index.vue';
+
+import axios from "axios";
+
 
 @Component({
   name: 'rate-page',
@@ -10,6 +13,7 @@ import Page from '../page/index.vue'
 export default class RatePage extends Page {
   asin: string = "";
   priceRating: number = 0;
+  base: string = "http://localhost:5000";
 
   get priceRatingColor() {
     return Math.log(this.priceRating);
@@ -17,6 +21,10 @@ export default class RatePage extends Page {
 
   onRate() {
     // TODO Make HTTP Request to rate price.
-    this.priceRating = 1;
+    axios.get(this.base + '/rate', {
+      params: {asin: this.asin}
+    }).then((response) => {
+      this.priceRating = response.data
+    })
   }
 }

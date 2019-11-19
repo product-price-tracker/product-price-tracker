@@ -2,12 +2,17 @@ absl-py==0.8.1
 astor==0.8.0
 certifi==2019.9.11
 chardet==3.0.4
+Click==7.0
 cycler==0.10.0
+Flask==1.1.1
+Flask-Cors==3.0.8
 gast==0.2.2
 google-pasta==0.1.7
 grpcio==1.24.1
 h5py==2.10.0
 idna==2.8
+itsdangerous==1.1.0
+Jinja2==2.10.3
 joblib==0.14.0
 keepa==0.19.2
 Keras==2.3.1
@@ -15,6 +20,7 @@ Keras-Applications==1.0.8
 Keras-Preprocessing==1.1.0
 kiwisolver==1.1.0
 Markdown==3.1.1
+MarkupSafe==1.1.1
 matplotlib==3.1.1
 numpy==1.17.2
 opt-einsum==3.1.0
