@@ -1,22 +1,32 @@
-from flask import Flask, render_template
+from flask import Flask, request, render_template, jsonify
+from pandas import DataFrame
+
 from ratePrice import rate_price
+from getProductsForCategory import getProductsForCategory
+from getMostUnderpriced import mostUnderpriced
+from getProductData import get_data_for_product
+
 import configparser
-":{?>P:{?}
 
 config = configparser.ConfigParser()
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return 'Hello!'
 
 @app.route('/rate')
 def rate():
-    return rate_price(request.args['asin'])
+    return str(rate_price(request.args['asin']))
 
 @app.route('/predict')
 def predict():
     pass
 
-if __name__ == '__main__':
-    app.run(**config['app'])
+@app.route('/most-underpriced') # takes a category ID, gets top n underpriced items
+def most_underpriced():
+    return jsonify(mostUnderpriced(getProductsForCategory(request.args['catid'])))
+
+@app.route('/price-data')
+def price_data():
+    return get_data_for_product(request.args['asin']).to_json(orient='index')
