@@ -15,6 +15,7 @@ import PriceChart from '../price-chart/index.vue';
 export default class PredictPage extends Page {
   prices: string[] = ['New', 'Amazon', 'Used']
   price: string = "New";
+  daysAhead: number = 3;
   asin: string = "";
   base: string = "http://localhost:5000";
   dataList: PriceList = new PriceList();
@@ -28,7 +29,8 @@ export default class PredictPage extends Page {
     axios.get(this.base + '/predict', {
       params: {
         asin: this.asin,
-        price: this.price.toUpperCase()
+        price: this.price.toUpperCase(),
+        daysAhead: this.daysAhead
       }
     }).then((response) => {
       this.dataList = new PriceList();

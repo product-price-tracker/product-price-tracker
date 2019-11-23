@@ -6,6 +6,10 @@
     <option disabled selected>Price</option>
     <option v-for="p in prices">{{p}}</option>
   </select>
+  <select v-model="daysAhead">
+    <option disabled selected>Days Ahead</option>
+    <option v-for="n in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]">{{n}}</option>
+  </select>
   <button @click="onPredict()">Predict</button>
   <price-chart :priceDefined="priceDefined" :isLoading="isLoading" :price="price" :priceHistory="dataList" :pricePrediction="predList" @startLoading="onStartLoading()" @stopLoading="onStopLoading()"/>
 </section>

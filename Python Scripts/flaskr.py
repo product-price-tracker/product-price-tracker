@@ -30,8 +30,8 @@ def rate():
 @cross_origin()
 def predict():
     asin = request.args['asin']
-    price = 'NEW'
-    predictions = predict_upcoming_prices(days_ahead=1, time_steps=100, num_epochs=1, price=price, asin=asin)
+    price = request.args['price']
+    predictions = predict_upcoming_prices(days_ahead=int(request.args['daysAhead']), time_steps=100, num_epochs=5, price=price, asin=asin)
     data_times, data_values, prediction_times, prediction_values = get_plottable_data_and_predictions(predictions, asin)
     data_times = [int(time.mktime(n.timetuple())) for n in data_times]
     data_values = [float(n) for n in data_values]
