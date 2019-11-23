@@ -1,0 +1,12 @@
+
+<section>
+  <img v-if="isLoading" src="../../assets/45.gif" alt="">
+  <div v-if="priceDefined" @click="onClick()" col-12>
+    <h1>{{price}}</h1>
+    <select v-model="historyLength">
+      <option disabled selected>History Length</option>
+      <option v-for="h in historyLengths">{{h}}</option>
+    </select>
+    <canvas col-12 width="1800rem" height="250rem" ref="canvas"></canvas>
+  </div>
+</section>

@@ -1,11 +1,14 @@
 from flask import Flask, request, render_template, jsonify
 from flask_cors import CORS, cross_origin
 from pandas import DataFrame
+import json
+import time
 
 from ratePrice import rate_price
 from getProductsForCategory import getProductsForCategory
 from getMostUnderpriced import mostUnderpriced
 from getProductData import get_data_for_product
+from predictNextPrice import get_plottable_data_and_predictions, predict_upcoming_prices
 
 import configparser
 
@@ -26,7 +29,15 @@ def rate():
 @app.route('/predict')
 @cross_origin()
 def predict():
-    pass
+    asin = request.args['asin']
+    price = 'NEW'
+    predictions = predict_upcoming_prices(days_ahead=1, time_steps=100, num_epochs=1, price=price, asin=asin)
+    data_times, data_values, prediction_times, prediction_values = get_plottable_data_and_predictions(predictions, asin)
+    data_times = [int(time.mktime(n.timetuple())) for n in data_times]
+    data_values = [float(n) for n in data_values]
+    prediction_times = [int(time.mktime(n.timetuple())) for n in prediction_times]
+    prediction_values = [float(n) for n in prediction_values]
+    return {'data_times': data_times, 'data_values': data_values, 'prediction_times': prediction_times, 'prediction_values': prediction_values}
 
 @app.route('/most-underpriced') # takes a category ID, gets top n underpriced items
 @cross_origin()
@@ -36,4 +47,6 @@ def most_underpriced():
 @app.route('/price-data')
 @cross_origin()
 def price_data():
-    return get_data_for_product(request.args['asin']).to_json(orient='index')
+    obj = json.loads(get_data_for_product(request.args['asin']).to_json(orient='index'))
+
+    return {'data': [obj[str(key)] for key in sorted([int(k) for k in obj.keys()])]}

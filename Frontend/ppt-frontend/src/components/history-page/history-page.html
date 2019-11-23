@@ -2,10 +2,10 @@
 <section class="history-page">
   <h1>Price History</h1>
   <input v-model="asin" placeholder="ASIN" style="margin-top: 3rem; margin-bottom: 10rem;">
-  <button @click="onSelectAsin()">Select</button>
   <select v-model="price">
     <option disabled selected>Price</option>
     <option v-for="p in prices">{{p}}</option>
   </select>
-  <button @click="onHistory()">Get History</button>
+  <button @click="onGetHistory()">Get History</button>
+  <price-chart :priceDefined="priceDefined" :isLoading="isLoading" :price="price" :priceHistory="priceList" @startLoading="onStartLoading()" @stopLoading="onStopLoading()"/>
 </section>

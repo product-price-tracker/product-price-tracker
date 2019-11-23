@@ -1,0 +1,11 @@
+.price-chart {
+  div {
+    position: 'relative';
+    background-color: lightgray;
+    text-align: left;
+    vertical-align: text-top;
+  }
+  canvas {
+    border: 1px solid black;
+  }
+}

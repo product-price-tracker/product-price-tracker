@@ -14,11 +14,14 @@ import datetime
 import matplotlib.pyplot as plt
 
 from getProductData import save_data_for_product
+from cleanProductData import save_clean_data_for_product
 
 import os
 
 
 def createNextPriceModel(n_input, n_output, time_steps=50, lstm_units=2, reg_param=1e-4):
+    print(time_steps)
+    print(n_input)
     in_layer = Input((time_steps, n_input))
     lstm = LSTM(lstm_units, return_sequences=False, activity_regularizer=l2(reg_param), dropout=0.0)(in_layer)
     # lstm = LSTM(lstm_units, return_sequences=False, activity_regularizer=l2(reg_param), dropout=0.0)(lstm)
@@ -99,14 +102,18 @@ def create_train_predict(path='../Data/Clean/B00BWU3HNY.pkl', time_steps=150, da
     x = x_scaler.transform(x_raw)
     y = y_scaler.transform(y_raw)
     x_train, y_train, x_test, y_test = getSequencesFromData(x, y, time_steps = time_steps)
+
+
     n_input = x_train.shape[2]
     n_output = y_train.shape[1]
 
     model = createNextPriceModel(n_input, n_output, time_steps = time_steps)
     model = trainNextPriceModel(model, x_train, y_train, num_epochs=num_epochs)
     predictions = model.predict(x_test)
+
+
     scaled_predictions = y_scaler.inverse_transform(predictions)
-    prediction = scaled_predictions[-1*time_steps+1,0]
+    prediction = scaled_predictions[-1,0]
     return prediction
 
 
@@ -127,8 +134,7 @@ def predict_upcoming_prices(days_ahead=7, time_steps=150, num_epochs=10, asin='B
         predictions.append(prediction)
     return predictions
 
-def plot_data_and_predictions(predictions, asin='B00BWU3HNY', price='NEW'):
-    # TODO parameterize df
+def get_plottable_data_and_predictions(predictions, asin='B00BWU3HNY', price='NEW'):
     df = loadData('../Data/Clean/{}.pkl'.format(asin))
     # df = prepData(df)
 
@@ -139,6 +145,11 @@ def plot_data_and_predictions(predictions, asin='B00BWU3HNY', price='NEW'):
 
     prediction_times = [data_times[-1] + datetime.timedelta(days=days) for days in range(prediction_length+1)]
     prediction_values = [data_values[-1]] + predictions
+
+    return data_times, data_values, prediction_times, prediction_values
+
+def plot_data_and_predictions(predictions, asin='B00BWU3HNY', price='NEW'):
+    data_times, data_values, prediction_times, prediction_values = get_plottable_data_and_predictions(predictions, asin, price)
 
     print(prediction_values)
 
@@ -152,10 +163,10 @@ def plot_data_and_predictions(predictions, asin='B00BWU3HNY', price='NEW'):
     plt.show()
 
 def main():
-    price='AMAZON'
-    asin='B00BWU3HNY'
+    price='NEW'
+    asin='B0047E0EII'
     # predictions = predict_upcoming_prices(3, time_steps=365, num_epochs=10, price=price, asin=asin)
-    predictions = predict_upcoming_prices(days_ahead=3, time_steps=365, num_epochs=5, price=price, asin=asin)
+    predictions = predict_upcoming_prices(days_ahead=1, time_steps=100, num_epochs=3, price=price, asin=asin)
 
     plot_data_and_predictions(predictions, asin=asin, price=price)
 
