@@ -13,15 +13,16 @@ import PriceChart from '../price-chart/index.vue';
   },
 })
 export default class PredictPage extends Page {
-  prices: string[] = ['New', 'Amazon', 'Used', 'Min Unused']
+  prices: string[] = ['New', 'Amazon', 'Min Unused']
   price: string = "Min Unused";
-  daysAhead: number = 3;
+  daysAhead: number = 14;
   asin: string = "";
   base: string = "http://localhost:5000";
   dataList: PriceList = new PriceList();
   predList: PriceList = new PriceList();
   isLoading: boolean = false;
   priceDefined: boolean = false;
+  daysAheadList: number[] = [...Array(100).keys()].map(x=>x+1);
 
   onPredict() {
     // Make HTTP Request to get hist+prediction.

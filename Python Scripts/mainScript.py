@@ -4,7 +4,7 @@ import argparse #command-line parsing module
 
 from ratePrice import rate_price
 from getProductsForCategory import getProductDataForCategory
-from predictNextPrice import predict_upcoming_prices, plot_data_and_predictions
+from predictSequence import predict_upcoming_prices, plot_data_and_predictions
 
 parser = argparse.ArgumentParser()
 

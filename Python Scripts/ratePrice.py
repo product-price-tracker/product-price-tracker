@@ -14,17 +14,17 @@ def rate_price(asin):
         print("No price data for the product: " + asin)
         return -1
     else:
-        currentPrice = df.at[dflength, 'NEW']
-        meanHistoryPrice = df.loc[:, 'NEW'].mean()
+        currentPrice = df.at[dflength, 'MIN_UNUSED']
+        meanHistoryPrice = df.loc[:, 'MIN_UNUSED'].mean()
         return currentPrice / meanHistoryPrice
 
 def current_price(asin):
     df = get_clean_data_for_product(asin)
-    return df.at[len(df) - 1, 'NEW']
+    return df.at[len(df) - 1, 'MIN_UNUSED']
 
 def mean_history_price(asin):
     df = get_clean_data_for_product(asin)
-    return df.loc[:, 'NEW'].mean()
+    return df.loc[:, 'MIN_UNUSED'].mean()
 
 if __name__ == "__main__":
     print(rate_price('B0775451TT'))

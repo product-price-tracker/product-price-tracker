@@ -1,11 +1,11 @@
 import keepa
 import pandas
 from getAccessKey import getAccessKey
-from getProductData import get_data_for_product
+from cleanProductData import get_clean_data_for_product
 
 def predictBayes(asin): # predict one year from now
 
-    df = get_data_for_product(asin, plot=False)
+    df = get_clean_data_for_product(asin)
     dflength = len(df) - 1
 
     if dflength == -1:
@@ -49,4 +49,3 @@ def analyzeBayes(priceData):
 
 if __name__ == "__main__":
     print(predictBayes('B0001ARCFA'))#B0775451TT'))
-
