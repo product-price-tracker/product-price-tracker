@@ -4,5 +4,7 @@
   <input v-model="asin" placeholder="ASIN" style="margin-top: 3rem; margin-bottom: 10rem;">
   <button @click="onRate()">Rate</button>
 
-  <h2>Price Rating: {{priceRating}}</h2>
+  <h2>Price Rating:</h2>
+  <h2 v-if="priceRating !== 0" :style="priceRatingColor">{{priceRating.toFixed(3)}}</h2>
+  <h2 v-if="priceRating !== 0">{{priceRatingDesc}}</h2>
 </section>

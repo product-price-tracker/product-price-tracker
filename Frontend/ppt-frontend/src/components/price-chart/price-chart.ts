@@ -102,43 +102,85 @@ export default class PriceChart extends Vue {
     const maxPoint = Math.max(...this.priceList, ...this.predList);
     const range = maxPoint - minPoint;
 
-
+    const pointsBetween: number = Math.floor((this.priceList.length + this.predList.length) / 15);
 
     const widthPerPoint = this.canvas.width / (this.priceList.length + this.predList.length - 1);
     const heightPerPoint = this.canvas.height / range;
 
 
+    const today = new Date();
+
+
     const getHeight = (point: number) => (range - (point - minPoint)) * heightPerPoint;
     const ctx = this.canvas.getContext("2d")!;
     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    //border
     ctx.beginPath();
-    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "gray";
+    ctx.rect(0, 0, this.canvas.width, this.canvas.height);
+    ctx.stroke();
+
+
     //data
-    for (let i = 0; i < this.priceList.length-1; i++) {
+    for (let i = 0; i < this.priceList.length; i++) {
+
+      ctx.beginPath();
+      ctx.strokeStyle = 'blue';
       ctx.moveTo(i * widthPerPoint, getHeight(this.priceList[i]));
       ctx.lineTo((i+1) * widthPerPoint, getHeight(this.priceList[i+1]));
       ctx.stroke();
 
-      ctx.moveTo(i * widthPerPoint, range * heightPerPoint)
-      ctx.lineTo(i * widthPerPoint, range * heightPerPoint - 7)
-      ctx.stroke();
+      ctx.beginPath();
+      ctx.strokeStyle = 'black';
+      if (i % pointsBetween == 0) {
 
-      ctx.fillText(i.toString(), i * widthPerPoint + 5, range * heightPerPoint - 5);
+        ctx.moveTo(i * widthPerPoint, range * heightPerPoint)
+        ctx.lineTo(i * widthPerPoint, range * heightPerPoint - 14)
+        ctx.stroke();
+
+        let newDate = new Date();
+        newDate.setDate(today.getDate() + i - (this.priceList.length));
+        let dateString = newDate.getMonth()+1 + "/" + newDate.getDate() + "/" + newDate.getFullYear();
+        ctx.fillText(dateString, i * widthPerPoint, range * heightPerPoint - 15);
+        // ctx.fillText((-1*(this.priceList.length-1 - i)).toString(), i * widthPerPoint, range * heightPerPoint - 10);
+
+      }
+      else {
+        ctx.moveTo(i * widthPerPoint, range * heightPerPoint)
+        ctx.lineTo(i * widthPerPoint, range * heightPerPoint - 7)
+        ctx.stroke();
+      }
     }
     //predictions
-    ctx.beginPath();
-    ctx.strokeStyle = "pink";
     for (let i = 0; i < this.predList.length-1; i++) {
+      ctx.beginPath();
+      ctx.strokeStyle = "red";
       let startWidth = (this.priceList.length-1) * widthPerPoint;
       ctx.moveTo(startWidth+ i * widthPerPoint, getHeight(this.predList[i]));
       ctx.lineTo(startWidth+ (i+1) * widthPerPoint, getHeight(this.predList[i+1]));
       ctx.stroke();
 
-      ctx.moveTo(startWidth+ i * widthPerPoint, range * heightPerPoint)
-      ctx.lineTo(startWidth+ i * widthPerPoint, range * heightPerPoint - 7)
-      ctx.stroke();
+      ctx.beginPath();
+      ctx.strokeStyle = 'black';
+      if (i % pointsBetween == 0) {
 
-      ctx.fillText(i.toString(), startWidth + i * widthPerPoint + 5, range * heightPerPoint - 5);
+        ctx.moveTo(startWidth + i * widthPerPoint, range * heightPerPoint)
+        ctx.lineTo(startWidth + i * widthPerPoint, range * heightPerPoint - 14)
+        ctx.stroke();
+
+        let newDate = new Date();
+        newDate.setDate(today.getDate() + i);
+        let dateString = newDate.getMonth()+1 + "/" + newDate.getDate() + "/" + newDate.getFullYear();
+        ctx.fillText(dateString, startWidth + i * widthPerPoint, range * heightPerPoint - 15);
+        // ctx.fillText((-1*(this.priceList.length-1 - i)).toString(), i * widthPerPoint, range * heightPerPoint - 10);
+
+      }
+      else {
+        ctx.moveTo(i * widthPerPoint, range * heightPerPoint)
+        ctx.lineTo(i * widthPerPoint, range * heightPerPoint - 7)
+        ctx.stroke();
+      }
     }
     ctx.beginPath();
     ctx.strokeStyle = 'black';
@@ -149,7 +191,7 @@ export default class PriceChart extends Vue {
       ctx.lineTo(7, i * heightBetweenTicks)
       ctx.stroke();
 
-      ctx.fillText('$' + ((vertTicks - i) * range/vertTicks + minPoint).toString(), 5, i * heightBetweenTicks - 5);
+      ctx.fillText('$' + ((vertTicks - i) * range/vertTicks + minPoint).toFixed(2).toString(), 0, i * heightBetweenTicks - 15);
     }
   }
 

@@ -3,7 +3,7 @@
   <img v-if="isLoading" src="../../assets/45.gif" alt="">
   <div v-if="priceDefined" @click="onClick()" col-12>
     <h1>{{price}}</h1>
-    <select v-model="historyLength">
+    <select v-model="historyLength" style="margin-top: 1rem; margin-bottom: 2rem;">
       <option disabled selected>History Length</option>
       <option v-for="h in historyLengths">{{h}}</option>
     </select>
