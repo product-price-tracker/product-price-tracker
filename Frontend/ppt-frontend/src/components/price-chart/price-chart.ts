@@ -183,8 +183,8 @@ export default class PriceChart extends Vue {
 
       }
       else {
-        ctx.moveTo(i * widthPerPoint, range * heightPerPoint)
-        ctx.lineTo(i * widthPerPoint, range * heightPerPoint - 7)
+        ctx.moveTo(startWidth + i * widthPerPoint, range * heightPerPoint)
+        ctx.lineTo(startWidth + i * widthPerPoint, range * heightPerPoint - 7)
         ctx.stroke();
       }
     }
