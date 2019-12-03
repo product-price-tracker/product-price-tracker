@@ -9,6 +9,7 @@ from getProductsForCategory import getProductsForCategory
 from getMostUnderpriced import mostUnderpriced
 from getProductData import get_data_for_product
 from predictNextPrice import get_plottable_data_and_predictions, predict_upcoming_prices
+from predictBayes import predictBayes
 
 import configparser
 
@@ -50,3 +51,8 @@ def price_data():
     obj = json.loads(get_data_for_product(request.args['asin']).to_json(orient='index'))
 
     return {'data': [obj[str(key)] for key in sorted([int(k) for k in obj.keys()])]}
+
+@app.route('/predict-bayes')
+@cross_origin()
+def predict_bayes():
+    return str(predictBayes(request.args['asin']))
