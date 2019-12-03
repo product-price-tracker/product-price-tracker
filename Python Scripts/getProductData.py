@@ -2,6 +2,7 @@ import keepa
 import matplotlib.pyplot as plt
 import pandas as pd
 import datetime
+import os
 
 from getAccessKey import getAccessKey
 
@@ -9,57 +10,71 @@ from pandas.plotting import register_matplotlib_converters
 
 register_matplotlib_converters()
 
+def get_data_path(asin):
+    return '../Data/{}/{}.pkl'.format(get_now_string(), asin)
+
+def get_now_string():
+    now = datetime.datetime.now()
+    return now.strftime("%Y%m%d")
+
 def get_data_for_product(asin, plot=False):
-    accesskey = getAccessKey()
-    api = keepa.Keepa(accesskey)
+    path = get_data_path(asin)
+    if not os.path.isfile(path):
 
-    products = api.query(asin)
-    history = products[0]['data']
-    data = {}
+        accesskey = getAccessKey()
+        api = keepa.Keepa(accesskey)
 
-    # keepa.plot_product(products[0])
-    base_key = 'AMAZON' # Whatever key we're using to set the time
-    start_time = history[base_key + '_time'][0].replace(microsecond=0,second=0,minute=0,hour=0)
-    end_time = history[base_key + '_time'][-1].replace(microsecond=0,second=0,minute=0,hour=0)
+        products = api.query(asin)
+        history = products[0]['data']
+        data = {}
 
-    potential_keys = ['AMAZON', 'NEW', 'USED', 'SALES', 'COUNT_NEW', 'COUNT_USED', 'LISTPRICE', 'RATING', 'COUNT_REVIEWS']
+        # keepa.plot_product(products[0])
+        base_key = 'NEW' # Whatever key we're using to set the time
+        start_time = history[base_key + '_time'][0].replace(microsecond=0,second=0,minute=0,hour=0)
+        end_time = history[base_key + '_time'][-1].replace(microsecond=0,second=0,minute=0,hour=0)
 
-    for key in potential_keys:
-        if key not in history:
-            continue
-        # plt.step(history[key], history[key + '_time'], where='pre')
+        potential_keys = ['AMAZON', 'NEW', 'USED', 'SALES', 'COUNT_NEW', 'COUNT_USED', 'LISTPRICE', 'RATING', 'COUNT_REVIEWS']
 
-        time = start_time
-        furthest_time_index = 0
-        data[key] = []
-        data[key + '_time'] = []
-        while time < end_time:
-            # Find latest price update for this day, and set that as the price for this day.
-            while furthest_time_index < len(history[key + '_time']) and history[key + '_time'][furthest_time_index] < time + datetime.timedelta(days=1):
+        for key in potential_keys:
+            if key not in history:
+                continue
+            # plt.step(history[key], history[key + '_time'], where='pre')
 
-                furthest_time_index += 1
+            time = start_time
+            furthest_time_index = 0
+            data[key] = []
+            data[key + '_time'] = []
+            while time < end_time:
+                # Find latest price update for this day, and set that as the price for this day.
+                while furthest_time_index < len(history[key + '_time']) and history[key + '_time'][furthest_time_index] < time + datetime.timedelta(days=1):
 
-            data[key].append(history[key][furthest_time_index-1])
-            data[key + '_time'].append(time)
-            time += datetime.timedelta(days=1)
+                    furthest_time_index += 1
 
-        # print(data[key])
-        # print(data[key + '_time'])
-        if plot:
-            plt.figure(figsize=(16, 8))
-            plt.xlabel('Time')
-            plt.ylabel(key)
-            plt.title(key + ' over Time')
-            plt.plot(data[key + '_time'], data[key])
-            plt.show()
+                data[key].append(history[key][furthest_time_index-1])
+                data[key + '_time'].append(time)
+                time += datetime.timedelta(days=1)
 
-    df = pd.DataFrame()
-    for key in potential_keys:
-        if key in data:
-            df[key] = data[key]
-            df['Time'] = data[key + '_time']
+            # print(data[key])
+            # print(data[key + '_time'])
+            if plot:
+                plt.figure(figsize=(16, 8))
+                plt.xlabel('Time')
+                plt.ylabel(key)
+                plt.title(key + ' over Time')
+                plt.plot(data[key + '_time'], data[key])
+                plt.show()
+        df = pd.DataFrame()
+        for key in potential_keys:
+            if key in data:
+                df[key] = data[key]
+                df['Time'] = data[key + '_time']
 
-    #print(df.head(100))
+        date_path = '../Data/{}'.format(get_now_string())
+        if not os.path.isdir(date_path):
+            os.mkdir(date_path)
+        df.to_pickle(path)
+    else:
+        df = pd.read_pickle(path)
     return df
 
 
@@ -75,10 +90,6 @@ def get_data_for_product(asin, plot=False):
 
     # df = pd.read_csv(products[0]['data']))
     # print(df)
-
-def save_data_for_product(asin):
-    df = get_data_for_product(asin, plot=False)
-    df.to_pickle('../Data/{}.pkl'.format(str(asin)))
 
 if __name__ == "__main__":
     print(get_data_for_product('B0047E0EII').head(100))

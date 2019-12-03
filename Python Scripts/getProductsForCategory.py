@@ -17,8 +17,7 @@ def getProductsForCategory(rootCategory=172282, number_of_products=50): # page s
 def getProductDataForASINs(asins):
     dfs = {}
     for asin in asins:
-        dfs[asin] = get_data_for_product(asin, plot=False)
-        dfs[asin].to_pickle('../Data/{}.pkl'.format(str(asin)))
+        dfs[asin] = get_clean_data_for_product(asin)
 
 def getProductDataForCategory(rootCategory=172282, number_of_products=50):
     getProductDataForASINs(getProductsForCategory(rootCategory, number_of_products))

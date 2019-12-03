@@ -2,7 +2,6 @@ import keepa
 import pandas
 import numpy
 from getAccessKey import getAccessKey
-from getProductData import get_data_for_product
 from ratePrice import rate_price
 from getProductsForCategory import getProductsForCategory
 
@@ -11,7 +10,7 @@ from getProductsForCategory import getProductsForCategory
 def mostUnderpriced(asins, n = 10):
 
     ratings = []
-    
+
     for asin in asins:
         priceRating = rate_price(asin)
         if priceRating > -1:
@@ -24,4 +23,3 @@ def mostUnderpriced(asins, n = 10):
 if __name__ == "__main__":
     print(mostUnderpriced(getProductsForCategory()[0:19])) # gets default list of electronics products
     #print(mostUnderpriced(['B01J4GCK1W', 'B07JQ5WTZL']))
-

@@ -13,8 +13,8 @@ import PriceChart from '../price-chart/index.vue';
   },
 })
 export default class HistoryPage extends Page {
-  prices: string[] = ['New', 'Amazon', 'Used']
-  price: string = "New";
+  prices: string[] = ['Min Unused', 'New', 'Amazon', 'Used']
+  price: string = 'Min Unused';
   asin: string = "";
   base: string = "http://localhost:5000";
   priceList: PriceList = new PriceList();
