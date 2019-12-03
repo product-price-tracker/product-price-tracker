@@ -7,7 +7,7 @@ import time
 from ratePrice import rate_price
 from getProductsForCategory import getProductsForCategory
 from getMostUnderpriced import mostUnderpriced
-from getProductData import get_data_for_product
+from cleanProductData import get_clean_data_for_product
 from predictNextPrice import get_plottable_data_and_predictions, predict_upcoming_prices
 
 import configparser
@@ -47,6 +47,6 @@ def most_underpriced():
 @app.route('/price-data')
 @cross_origin()
 def price_data():
-    obj = json.loads(get_data_for_product(request.args['asin']).to_json(orient='index'))
+    obj = json.loads(get_clean_data_for_product(request.args['asin']).to_json(orient='index'))
 
     return {'data': [obj[str(key)] for key in sorted([int(k) for k in obj.keys()])]}

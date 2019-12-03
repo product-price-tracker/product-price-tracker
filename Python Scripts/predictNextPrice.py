@@ -13,8 +13,7 @@ import datetime
 
 import matplotlib.pyplot as plt
 
-from getProductData import save_data_for_product
-from cleanProductData import save_clean_data_for_product
+from cleanProductData import get_clean_data_for_product
 
 import os
 
@@ -80,17 +79,13 @@ def getSequencesFromData(x_raw, y_raw, time_steps, train_split=0.8):
 
     return x_train, y_train, x_test, y_test
 
-
-def loadData(path):
-    return pd.read_pickle(path)
-
 def prepData(df, days_ahead=1, price='NEW'):
     df['Next '+price] = df[price].shift(-1*days_ahead)
     df = df.fillna(0)
     return df
 
-def create_train_predict(path='../Data/Clean/B00BWU3HNY.pkl', time_steps=150, days_ahead=1, num_epochs=10, price='NEW'):
-    df = loadData(path)
+def create_train_predict(asin, time_steps=150, days_ahead=1, num_epochs=10, price='NEW'):
+    df = get_clean_data_for_product(asin)
     df = prepData(df, days_ahead=days_ahead, price=price)
 
     x_raw, y_raw = getProductDf(df, price=price)
@@ -120,22 +115,15 @@ def create_train_predict(path='../Data/Clean/B00BWU3HNY.pkl', time_steps=150, da
     # print(model.evaluate(x_test, y_test))
 
 def predict_upcoming_prices(days_ahead=7, time_steps=150, num_epochs=10, asin='B00BWU3HNY', price='NEW'):
-    path = '../Data/{}.pkl'.format(str(asin))
-    clean_path = '../Data/Clean/{}.pkl'.format(str(asin))
-    if not os.path.isfile(path):
-        save_data_for_product(asin)
-    if not os.path.isfile(clean_path):
-        save_clean_data_for_product(asin)
-
     predictions = []
     for days_ahead in np.array(range(days_ahead))+1:
         print('Creating Model for {} days ahead.'.format(days_ahead))
-        prediction = create_train_predict(path=clean_path, time_steps=time_steps, days_ahead=days_ahead, num_epochs=num_epochs, price=price)
+        prediction = create_train_predict(asin=asin, time_steps=time_steps, days_ahead=days_ahead, num_epochs=num_epochs, price=price)
         predictions.append(prediction)
     return predictions
 
 def get_plottable_data_and_predictions(predictions, asin='B00BWU3HNY', price='NEW'):
-    df = loadData('../Data/Clean/{}.pkl'.format(asin))
+    df = get_clean_data_for_product(asin)
     # df = prepData(df)
 
     prediction_length = len(predictions)
