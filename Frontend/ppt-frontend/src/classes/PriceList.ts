@@ -1,6 +1,7 @@
 import PricePoint from './PricePoint';
 
 export default class PriceList {
+  minUnusedList: number[];
   newList: number[];
   amazonList: number[];
   usedList: number[];
@@ -8,12 +9,14 @@ export default class PriceList {
 
   constructor(priceList: PricePoint[]|null = null) {
     if (priceList == null) {
+      this.minUnusedList = [];
       this.newList = [];
       this.amazonList = [];
       this.usedList = [];
       this.timeList = [];
     }
     else {
+      this.minUnusedList = priceList.map(pricePoint => pricePoint.MIN_UNUSED);;
       this.newList = priceList.map(pricePoint => pricePoint.NEW);
       this.amazonList = priceList.map(pricePoint => pricePoint.AMAZON);
       this.usedList = priceList.map(pricePoint => pricePoint.USED);

@@ -29,7 +29,7 @@ def get_data_for_product(asin, plot=False):
         data = {}
 
         # keepa.plot_product(products[0])
-        base_key = 'AMAZON' # Whatever key we're using to set the time
+        base_key = 'NEW' # Whatever key we're using to set the time
         start_time = history[base_key + '_time'][0].replace(microsecond=0,second=0,minute=0,hour=0)
         end_time = history[base_key + '_time'][-1].replace(microsecond=0,second=0,minute=0,hour=0)
 
@@ -63,7 +63,6 @@ def get_data_for_product(asin, plot=False):
                 plt.title(key + ' over Time')
                 plt.plot(data[key + '_time'], data[key])
                 plt.show()
-
         df = pd.DataFrame()
         for key in potential_keys:
             if key in data:

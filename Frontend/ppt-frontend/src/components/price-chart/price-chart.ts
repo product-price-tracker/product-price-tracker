@@ -74,6 +74,9 @@ export default class PriceChart extends Vue {
     else if (this.price == 'Used') {
       list = this.priceHistory.usedList;
     }
+    else if (this.price == 'Min Unused') {
+      list = this.priceHistory.minUnusedList;
+    }
 
     if (list.length > this.maxHistory) {
       list = list.slice(-this.maxHistory)
@@ -93,6 +96,9 @@ export default class PriceChart extends Vue {
     }
     if (this.price == 'Used') {
       return this.pricePrediction.usedList;
+    }
+    else if (this.price == 'Min Unused') {
+      return this.pricePrediction.minUnusedList;
     }
     return [];
   }

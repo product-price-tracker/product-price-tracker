@@ -2,6 +2,7 @@ from getProductData import get_now_string, get_data_for_product
 import os
 import pandas as pd
 import sys
+import numpy as np
 
 def loadData(path):
     return pd.read_pickle(path)
@@ -35,8 +36,8 @@ def get_clean_data_for_product(asin):
                     if pd.isna(df.iloc[i][column]):
                         if column in first_vals:
                             df[column].iloc[i] = first_vals[column]
-                        else: # If all nulls—i.e. no price history, set to max value.
-                            df[column].iloc[i] = sys.float_info.max
+                        else: # If all nulls—i.e. no price history, set to 100000 (fake value).
+                            df[column].iloc[i] = 100000
 
                     else:
                         reached_first_vals[column] = True
@@ -63,8 +64,8 @@ def get_clean_data_for_product(asin):
                 new_count = df[count].replace(to_replace = -1, value = 0)
                 df[count] = new_count
 
-
-
+        # Adding MIN_UNUSED
+        df['MIN_UNUSED'] = df[['NEW', 'AMAZON']].min(axis=1)
         # print(df.isna().sum().sum())
         assert df.isna().sum().sum() == 0
         clean_date_path = '../Data/Clean/{}'.format(get_now_string())
@@ -73,8 +74,9 @@ def get_clean_data_for_product(asin):
         df.to_pickle(get_clean_path(asin))
     else:
         df = pd.read_pickle(clean_path)
+    print(df)
     return df
 
 
 if __name__ == '__main__':
-    get_clean_data_for_product('B07L5DGYBD')
+    get_clean_data_for_product('B07C2PYWGZ')

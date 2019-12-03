@@ -40,13 +40,11 @@ def trainNextPriceModel(model, x_train, y_train, num_epochs=10):
 
 def getProductDf(productDf, price='NEW'):
     # print(productDf)
-    # TODO: implement MIN_UNUSED
-    # productDf['MIN_UNUSED'] = np.min(productDf['NEW'], productDf['AMAZON'])
     y = np.array(productDf['Next '+price]).reshape(len(productDf['Next '+price]),1)
     # print(y_train[50:60])
     # print(np.array(productDf['NEW'][50:60]))
 
-    x_cols = ['AMAZON', 'NEW', 'SALES']
+    x_cols = ['AMAZON', 'NEW', 'SALES', 'MIN_UNUSED']
     x = np.zeros((len(y), len(x_cols)))
     for i in range(len(x_cols)):
         x[:, i] = productDf[x_cols[i]]
@@ -151,7 +149,7 @@ def plot_data_and_predictions(predictions, asin='B00BWU3HNY', price='NEW'):
     plt.show()
 
 def main():
-    price='NEW'
+    price='MIN_UNUSED'
     asin='B0047E0EII'
     # predictions = predict_upcoming_prices(3, time_steps=365, num_epochs=10, price=price, asin=asin)
     predictions = predict_upcoming_prices(days_ahead=1, time_steps=100, num_epochs=3, price=price, asin=asin)

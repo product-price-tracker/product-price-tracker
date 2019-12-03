@@ -13,8 +13,8 @@ import PriceChart from '../price-chart/index.vue';
   },
 })
 export default class PredictPage extends Page {
-  prices: string[] = ['New', 'Amazon', 'Used']
-  price: string = "New";
+  prices: string[] = ['New', 'Amazon', 'Used', 'Min Unused']
+  price: string = "Min Unused";
   daysAhead: number = 3;
   asin: string = "";
   base: string = "http://localhost:5000";
@@ -29,7 +29,7 @@ export default class PredictPage extends Page {
     axios.get(this.base + '/predict', {
       params: {
         asin: this.asin,
-        price: this.price.toUpperCase(),
+        price: this.price.replace(/ /g,"_").toUpperCase(),
         daysAhead: this.daysAhead
       }
     }).then((response) => {
@@ -44,6 +44,10 @@ export default class PredictPage extends Page {
       if (this.price == "Amazon") {
         this.dataList.amazonList = response.data.data_values;
         this.predList.amazonList = response.data.prediction_values;
+      }
+      if (this.price == "Min Unused") {
+        this.dataList.minUnusedList = response.data.data_values;
+        this.predList.minUnusedList = response.data.prediction_values;
       }
       this.onStopLoading();
     })
