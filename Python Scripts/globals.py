@@ -1,0 +1,2 @@
+def initialize():     
+    global rating 
