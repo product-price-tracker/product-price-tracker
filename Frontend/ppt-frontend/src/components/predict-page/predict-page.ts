@@ -18,6 +18,7 @@ export default class PredictPage extends Page {
   daysAhead: number = 14;
   asin: string = "";
   base: string = "http://localhost:5000";
+  mae: number = 0;
   dataList: PriceList = new PriceList();
   predList: PriceList = new PriceList();
   isLoading: boolean = false;
@@ -50,6 +51,7 @@ export default class PredictPage extends Page {
         this.dataList.minUnusedList = response.data.data_values;
         this.predList.minUnusedList = response.data.prediction_values;
       }
+      this.mae = response.data.mae;
       this.onStopLoading();
     })
   }

@@ -36,7 +36,7 @@ elif (args.command == "historic" and asinIsCategory == True):
     getProductDataForCategory(cat, args.numProducts)
 elif (args.command == "predict"):
        price='NEW'
-       predictions = predict_upcoming_prices(days_ahead=5, time_steps=365, num_epochs=10, price=price, asin=args.ASIN)
+       predictions, mae = predict_upcoming_prices(days_ahead=5, time_steps=365, num_epochs=10, price=price, asin=args.ASIN)
        plot_data_and_predictions(predictions, asin=args.ASIN, price=price)
        min_pred = min(predictions)
-       print('Minimum price of ${} in {} days from now.'.format(min_pred, predictions.index(min_pred)+1))
+       print('Minimum price of ${} in {} days from now. MAE: {}'.format(min_pred, predictions.index(min_pred)+1), mae)

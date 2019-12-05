@@ -126,17 +126,26 @@ def create_train_predict(asin, time_steps=150, days_ahead=1, num_epochs=2, price
     n_input = x_train.shape[2]
     n_output = y_train.shape[1]
 
-    model, encoder_model, decoder_model = createSeq2SeqModel(n_input, n_output, time_steps = time_steps)
+    model, encoder_model, decoder_model = createSeq2SeqModel(n_input, n_output, time_steps = time_steps, lstm_units=200)
     model = trainSeq2SeqModel(model, x_train, y_train, decoder_input_train, num_epochs=num_epochs)
     print('done training.')
     predictions = []
     scaled_predictions = []
+    abs_errors = []
     for x, y in zip(x_test, y_test):
         prediction = decode_sequence(x.reshape(1, x.shape[0], x.shape[1]), encoder_model, decoder_model, days_ahead, n_input)
         predictions.append(prediction)
-        scaled_predictions.append(data_scaler.inverse_transform(prediction[0]))
+        scaled_prediction = data_scaler.inverse_transform(prediction[0])
+        scaled_predictions.append(scaled_prediction)
+        scaled_truth = data_scaler.inverse_transform(y)
+        abs_errors.append(abs(scaled_prediction-scaled_truth))
+
     prediction = scaled_predictions[-1]
-    return prediction
+    price_index = ['AMAZON', 'NEW', 'SALES', 'MIN_UNUSED'].index(price)
+    # print('SQUARED ERRORS!')
+    # print(squared_errors[0].shape)
+    mae = np.asarray(abs_errors)[:-1,:,price_index].mean()
+    return prediction, mae
 
 
     # print(model.evaluate(x_test, y_test))
@@ -162,8 +171,8 @@ def decode_sequence(input_sequence, encoder_model, decoder_model, days_ahead, nu
     return decoded_seq
 
 def predict_upcoming_prices(days_ahead=3, time_steps=150, num_epochs=10, asin='B00BWU3HNY', price='NEW'):
-    predictions = create_train_predict(asin, time_steps=time_steps, days_ahead=days_ahead, num_epochs=num_epochs, price=price)
-    return predictions
+    predictions, mae = create_train_predict(asin, time_steps=time_steps, days_ahead=days_ahead, num_epochs=num_epochs, price=price)
+    return predictions, mae
 
 def get_plottable_data_and_predictions(predictions, asin='B00BWU3HNY', price='NEW'):
     df = get_clean_data_for_product(asin)
@@ -200,9 +209,10 @@ def main():
     price='MIN_UNUSED'
     asin='B0047E0EII'
     # predictions = predict_upcoming_prices(3, time_steps=365, num_epochs=10, price=price, asin=asin)
-    predictions = predict_upcoming_prices(days_ahead=20, time_steps=150, num_epochs=50, price=price, asin=asin)
+    predictions, mae = predict_upcoming_prices(days_ahead=20, time_steps=200, num_epochs=10, price=price, asin=asin)
 
     plot_data_and_predictions(predictions, asin=asin, price=price)
+    print(mae)
 
 
 if __name__ == "__main__":

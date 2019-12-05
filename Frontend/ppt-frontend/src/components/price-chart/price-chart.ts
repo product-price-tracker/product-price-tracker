@@ -20,6 +20,9 @@ export default class PriceChart extends Vue {
   public price!: string;
 
   @Prop()
+  public mae!: number;
+
+  @Prop()
   public priceHistory!: PriceList;
 
   @Prop()
@@ -40,6 +43,10 @@ export default class PriceChart extends Vue {
   @Watch('maxHistory')
   onMaxHistoryChanged(value: string, oldValue: string) {
     Vue.nextTick(()=>this.onDraw());
+  }
+
+  get isPredicting(): boolean {
+    return !(this.priceHistory === undefined || this.predList.length < 1);
   }
 
   get maxHistory(): number {
