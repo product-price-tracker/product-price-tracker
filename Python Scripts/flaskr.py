@@ -32,7 +32,11 @@ def rate():
 def predict():
     asin = request.args['asin']
     price = request.args['price']
-    predictions, mae = predict_upcoming_prices(days_ahead=int(request.args['daysAhead']), time_steps=100, num_epochs=20, price=price, asin=asin)
+    predictor = request.args['predictor']
+    if predictor == 'Machine Learning': # ML Model
+        predictions, mae = predict_upcoming_prices(days_ahead=int(request.args['daysAhead']), time_steps=100, num_epochs=5, price=price, asin=asin)
+    else: # "Bayesian" Model
+        predictions, mae = predictBayes(request.args['asin'])
     data_times, data_values, prediction_times, prediction_values = get_plottable_data_and_predictions(predictions, asin)
     data_times = [int(time.mktime(n.timetuple())) for n in data_times]
     data_values = [float(n) for n in data_values]
@@ -52,7 +56,7 @@ def price_data():
 
     return {'data': [obj[str(key)] for key in sorted([int(k) for k in obj.keys()])]}
 
-@app.route('/predict-bayes')
-@cross_origin()
-def predict_bayes():
-    return str(predictBayes(request.args['asin']))
+# @app.route('/predict-bayes')
+# @cross_origin()
+# def predict_bayes():
+#     return str(predictBayes(request.args['asin']))

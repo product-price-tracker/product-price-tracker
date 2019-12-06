@@ -2,6 +2,10 @@
 <section class="predict-page">
   <h1>Prediction</h1>
   <input v-model="asin" placeholder="ASIN" style="margin-top: 3rem; margin-bottom: 10rem;">
+  <select v-model="predictor">
+    <option disabled selected>Predictor</option>
+    <option v-for="p in predictors">{{p}}</option>
+  </select>
   <select v-model="price">
     <option disabled selected>Price</option>
     <option v-for="p in prices">{{p}}</option>

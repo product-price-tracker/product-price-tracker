@@ -19,6 +19,63 @@ from cleanProductData import get_clean_data_for_product
 import os
 
 
+def createSeq2SeqModelDeep(n_input, n_output, time_steps=50, lstm_units=10, reg_param=1e-4, num_layers=5):
+    dropout = 0.1
+
+    #Combined model
+    # Encoder
+    encoder_inputs = Input(shape=(None, n_input))
+
+    encoder_outputs = encoder_inputs
+    encoder_states = []
+    for i in range(num_layers)[::-1]:
+        encoder = LSTM(lstm_units, dropout=dropout, return_state=True, return_sequences=bool(i))
+        encoder_outputs, state_h, state_c = encoder(encoder_outputs)
+        encoder_states += [state_h, state_c]
+
+    # Decoder
+    decoder_inputs = Input(shape=(None, n_input))
+
+    decoder_outputs = decoder_inputs
+    decoder_output_layers = []
+
+    for i in range(num_layers):
+        decoder_lstm = LSTM(lstm_units, dropout=dropout, return_sequences=True, return_state=True)
+        decoder_output_layers.append(decoder_lstm)
+        decoder_outputs, _, _ = decoder_lstm(decoder_outputs, initial_state=encoder_states[2*i:(2*(i+1))])
+
+    decoder_dense = Dense(n_input) # Should be n_output??
+    decoder_outputs = decoder_dense(decoder_outputs)
+
+    model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
+
+    model.compile(optimizer='adam', loss='mse')
+
+
+    # Encoder Model
+    encoder_model = Model(encoder_inputs, encoder_states)
+
+
+    # Decoder Model
+    decoder_outputs = decoder_inputs
+    decoder_states_inputs = []
+    decoder_states = []
+    for i in range(num_layers)[::-1]:
+        decoder_current_state_inputs = [Input(shape=(lstm_units,)) for _ in range(2)]
+
+        temp = decoder_output_layers[num_layers-i-1](decoder_outputs, initial_state=decoder_current_state_inputs)
+
+        decoder_outputs, decoder_current_states = temp[0], temp[1:]
+
+        decoder_states += decoder_current_states
+        decoder_states_inputs += decoder_current_state_inputs
+
+
+    decoder_outputs = decoder_dense(decoder_outputs)
+    decoder_model = Model([decoder_inputs] + decoder_states_inputs, [decoder_outputs] + decoder_states)
+
+    return model, encoder_model, decoder_model
+
 def createSeq2SeqModel(n_input, n_output, time_steps=50, lstm_units=10, reg_param=1e-4):
     dropout = 0.5
 
@@ -126,14 +183,14 @@ def create_train_predict(asin, time_steps=150, days_ahead=1, num_epochs=2, price
     n_input = x_train.shape[2]
     n_output = y_train.shape[1]
 
-    model, encoder_model, decoder_model = createSeq2SeqModel(n_input, n_output, time_steps = time_steps, lstm_units=200)
+    model, encoder_model, decoder_model = createSeq2SeqModelDeep(n_input, n_output, time_steps = time_steps, lstm_units=300, num_layers=5)
     model = trainSeq2SeqModel(model, x_train, y_train, decoder_input_train, num_epochs=num_epochs)
     print('done training.')
     predictions = []
     scaled_predictions = []
     abs_errors = []
     for x, y in zip(x_test, y_test):
-        prediction = decode_sequence(x.reshape(1, x.shape[0], x.shape[1]), encoder_model, decoder_model, days_ahead, n_input)
+        prediction = decode_sequence_deep(x.reshape(1, x.shape[0], x.shape[1]), encoder_model, decoder_model, days_ahead, n_input)
         predictions.append(prediction)
         scaled_prediction = data_scaler.inverse_transform(prediction[0])
         scaled_predictions.append(scaled_prediction)
@@ -168,6 +225,32 @@ def decode_sequence(input_sequence, encoder_model, decoder_model, days_ahead, nu
 
         # update states
         states_value = [h, c]
+    return decoded_seq
+
+def decode_sequence_deep(input_sequence, encoder_model, decoder_model, days_ahead, num_features):
+    states_value = encoder_model.predict(input_sequence)
+
+    target_seq = np.zeros((1, 1, num_features))
+
+    target_seq[0, 0, :] = input_sequence[0, -1, :]
+
+    decoded_seq = np.zeros((1, days_ahead, num_features))
+
+    for i in range(days_ahead):
+        output = decoder_model.predict([target_seq] + states_value)
+
+
+        output_val = output[0]
+        output_state = output[1:]
+
+        decoded_seq[0, i, :] = output_val[0, 0, :]
+
+        # update target sequence
+        target_seq = np.zeros((1, 1, num_features))
+        target_seq[0, 0, :] = output_val[0, 0, :]
+
+        # update states
+        states_value = output_state
     return decoded_seq
 
 def predict_upcoming_prices(days_ahead=3, time_steps=150, num_epochs=10, asin='B00BWU3HNY', price='NEW'):
@@ -209,7 +292,7 @@ def main():
     price='MIN_UNUSED'
     asin='B0047E0EII'
     # predictions = predict_upcoming_prices(3, time_steps=365, num_epochs=10, price=price, asin=asin)
-    predictions, mae = predict_upcoming_prices(days_ahead=20, time_steps=200, num_epochs=10, price=price, asin=asin)
+    predictions, mae = predict_upcoming_prices(days_ahead=20, time_steps=100, num_epochs=7, price=price, asin=asin)
 
     plot_data_and_predictions(predictions, asin=asin, price=price)
     print(mae)

@@ -13,7 +13,9 @@ import PriceChart from '../price-chart/index.vue';
   },
 })
 export default class PredictPage extends Page {
-  prices: string[] = ['New', 'Amazon', 'Min Unused']
+  prices: string[] = ['New', 'Amazon', 'Min Unused'];
+  predictors: string[] = ['Statistical', 'Machine Learning'];
+  predictor: string = "Machine Learning";
   price: string = "Min Unused";
   daysAhead: number = 14;
   asin: string = "";
@@ -32,7 +34,8 @@ export default class PredictPage extends Page {
       params: {
         asin: this.asin,
         price: this.price.replace(/ /g,"_").toUpperCase(),
-        daysAhead: this.daysAhead
+        daysAhead: this.daysAhead,
+        predictor: this.predictor
       }
     }).then((response) => {
       this.dataList = new PriceList();
