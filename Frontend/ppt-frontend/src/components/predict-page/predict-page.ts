@@ -20,9 +20,11 @@ export default class PredictPage extends Page {
   daysAhead: number = 14;
   asin: string = "";
   base: string = "http://localhost:5000";
-  mae: number = 0;
+  mse: number = 0;
   dataList: PriceList = new PriceList();
   predList: PriceList = new PriceList();
+  lowerCiList: PriceList = new PriceList();
+  upperCiList: PriceList = new PriceList();
   isLoading: boolean = false;
   priceDefined: boolean = false;
   daysAheadList: number[] = [...Array(100).keys()].map(x=>x+1);
@@ -42,19 +44,29 @@ export default class PredictPage extends Page {
       this.dataList.timeList = response.data.data_times;
       this.predList = new PriceList();
       this.predList.timeList = response.data.prediction_times;
+      this.lowerCiList = new PriceList();
+      this.lowerCiList.timeList = response.data.prediction_times;
+      this.upperCiList = new PriceList();
+      this.upperCiList.timeList = response.data.prediction_times;
       if (this.price == "New") {
         this.dataList.newList = response.data.data_values;
         this.predList.newList = response.data.prediction_values;
+        this.lowerCiList.newList = response.data.lower_ci;
+        this.upperCiList.newList = response.data.upper_ci;
       }
       if (this.price == "Amazon") {
         this.dataList.amazonList = response.data.data_values;
         this.predList.amazonList = response.data.prediction_values;
+        this.lowerCiList.amazonList = response.data.lower_ci;
+        this.upperCiList.amazonList = response.data.upper_ci;
       }
       if (this.price == "Min Unused") {
         this.dataList.minUnusedList = response.data.data_values;
         this.predList.minUnusedList = response.data.prediction_values;
+        this.lowerCiList.minUnusedList = response.data.lower_ci;
+        this.upperCiList.minUnusedList = response.data.upper_ci;
       }
-      this.mae = response.data.mae;
+      this.mse = response.data.mse;
       this.onStopLoading();
     })
   }

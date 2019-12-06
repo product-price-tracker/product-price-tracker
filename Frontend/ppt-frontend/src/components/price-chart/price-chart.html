@@ -7,7 +7,7 @@
       <option disabled selected>History Length</option>
       <option v-for="h in historyLengths">{{h}}</option>
     </select>
-    <h2 v-if="isPredicting">Margin of Error (Mean Squared Error): {{mae.toFixed(2)}}</h2>
+    <h2 v-if="isPredicting">Margin of Error (Mean Squared Error): {{mse.toFixed(2)}}</h2>
     <canvas col-12 width="1800rem" height="250rem" ref="canvas"></canvas>
   </div>
 </section>

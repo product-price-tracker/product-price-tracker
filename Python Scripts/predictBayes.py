@@ -26,8 +26,8 @@ def analyzeBayes(priceData, daysAhead, price):
     pastPrediction = model.get_prediction(x).summary_frame(alpha=0.05)
     predictions = model.get_prediction(mutate(x, daysAhead)).summary_frame(alpha=0.05)
     #print(predictions[['mean', 'obs_ci_lower']])
-    results = (predictions[['mean', 'obs_ci_lower','obs_ci_upper']], pastPrediction['mean_se'])
-    return results
+    pred, mse, lower_ci, upper_ci = predictions['mean'], pastPrediction['mean_se'].mean(), predictions['obs_ci_lower'], predictions['obs_ci_upper']
+    return pred, mse, lower_ci, upper_ci
 
 def mutate(x, daysAhead):
     arr = []

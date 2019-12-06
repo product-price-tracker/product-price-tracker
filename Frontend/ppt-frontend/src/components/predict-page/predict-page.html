@@ -15,5 +15,5 @@
     <option v-for="n in daysAheadList">{{n}}</option>
   </select>
   <button @click="onPredict()">Predict</button>
-  <price-chart :priceDefined="priceDefined" :isLoading="isLoading" :price="price" :mae="mae" :priceHistory="dataList" :pricePrediction="predList" @startLoading="onStartLoading()" @stopLoading="onStopLoading()"/>
+  <price-chart :priceDefined="priceDefined" :isLoading="isLoading" :price="price" :mse="mse" :priceHistory="dataList" :pricePrediction="predList" :upperCi="upperCiList" :lowerCi="lowerCiList" @startLoading="onStartLoading()" @stopLoading="onStopLoading()"/>
 </section>

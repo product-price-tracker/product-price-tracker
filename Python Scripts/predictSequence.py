@@ -19,7 +19,7 @@ from cleanProductData import get_clean_data_for_product
 import os
 
 
-def createSeq2SeqModelDeep(n_input, n_output, time_steps=50, lstm_units=10, reg_param=1e-4, num_layers=5):
+def createSeq2SeqModelDeep(n_input, n_output, time_steps=50, lstm_units=10, reg_param=1e-4, num_layers=2):
     dropout = 0.1
 
     #Combined model
@@ -183,26 +183,26 @@ def create_train_predict(asin, time_steps=150, days_ahead=1, num_epochs=2, price
     n_input = x_train.shape[2]
     n_output = y_train.shape[1]
 
-    model, encoder_model, decoder_model = createSeq2SeqModelDeep(n_input, n_output, time_steps = time_steps, lstm_units=300, num_layers=5)
+    model, encoder_model, decoder_model = createSeq2SeqModelDeep(n_input, n_output, time_steps = time_steps, lstm_units=20, num_layers=3)
     model = trainSeq2SeqModel(model, x_train, y_train, decoder_input_train, num_epochs=num_epochs)
     print('done training.')
     predictions = []
     scaled_predictions = []
-    abs_errors = []
+    square_errors = []
     for x, y in zip(x_test, y_test):
         prediction = decode_sequence_deep(x.reshape(1, x.shape[0], x.shape[1]), encoder_model, decoder_model, days_ahead, n_input)
         predictions.append(prediction)
         scaled_prediction = data_scaler.inverse_transform(prediction[0])
         scaled_predictions.append(scaled_prediction)
         scaled_truth = data_scaler.inverse_transform(y)
-        abs_errors.append(abs(scaled_prediction-scaled_truth))
+        square_errors.append((scaled_prediction-scaled_truth)*(scaled_prediction-scaled_truth))
 
     prediction = scaled_predictions[-1]
     price_index = ['AMAZON', 'NEW', 'SALES', 'MIN_UNUSED'].index(price)
     # print('SQUARED ERRORS!')
     # print(squared_errors[0].shape)
-    mae = np.asarray(abs_errors)[:-1,:,price_index].mean()
-    return prediction, mae
+    mse = np.asarray(square_errors)[:-1,:,price_index].mean()
+    return prediction, mse
 
 
     # print(model.evaluate(x_test, y_test))
@@ -254,14 +254,16 @@ def decode_sequence_deep(input_sequence, encoder_model, decoder_model, days_ahea
     return decoded_seq
 
 def predict_upcoming_prices(days_ahead=3, time_steps=150, num_epochs=10, asin='B00BWU3HNY', price='NEW'):
-    predictions, mae = create_train_predict(asin, time_steps=time_steps, days_ahead=days_ahead, num_epochs=num_epochs, price=price)
-    return predictions, mae
+    predictions, mse = create_train_predict(asin, time_steps=time_steps, days_ahead=days_ahead, num_epochs=num_epochs, price=price)
+    return predictions, mse
 
-def get_plottable_data_and_predictions(predictions, asin='B00BWU3HNY', price='NEW'):
+def get_plottable_data_and_predictions(predictions, asin='B00BWU3HNY', price='NEW', predicting_other_prices=True):
     df = get_clean_data_for_product(asin)
     # df = prepData(df)
 
-    price_index = ['AMAZON', 'NEW', 'SALES', 'MIN_UNUSED'].index(price)
+    if predicting_other_prices:
+        price_index = ['AMAZON', 'NEW', 'SALES', 'MIN_UNUSED'].index(price)
+        predictions = predictions[:,price_index]
 
     prediction_length = len(predictions)
 
@@ -270,7 +272,7 @@ def get_plottable_data_and_predictions(predictions, asin='B00BWU3HNY', price='NE
     data_values = list(df[price])
 
     prediction_times = [data_times[-1] + datetime.timedelta(days=days) for days in range(prediction_length+1)]
-    prediction_values = [data_values[-1]] + list(predictions[:,price_index])
+    prediction_values = [data_values[-1]] + list(predictions)
 
     return data_times, data_values, prediction_times, prediction_values
 
@@ -292,10 +294,10 @@ def main():
     price='MIN_UNUSED'
     asin='B0047E0EII'
     # predictions = predict_upcoming_prices(3, time_steps=365, num_epochs=10, price=price, asin=asin)
-    predictions, mae = predict_upcoming_prices(days_ahead=20, time_steps=100, num_epochs=7, price=price, asin=asin)
+    predictions, mse = predict_upcoming_prices(days_ahead=20, time_steps=100, num_epochs=7, price=price, asin=asin)
 
     plot_data_and_predictions(predictions, asin=asin, price=price)
-    print(mae)
+    print(mse)
 
 
 if __name__ == "__main__":

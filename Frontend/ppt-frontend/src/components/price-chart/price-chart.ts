@@ -20,13 +20,19 @@ export default class PriceChart extends Vue {
   public price!: string;
 
   @Prop()
-  public mae!: number;
+  public mse!: number;
 
   @Prop()
   public priceHistory!: PriceList;
 
   @Prop()
   public pricePrediction!: PriceList;
+
+  @Prop()
+  public lowerCi!: PriceList;
+
+  @Prop()
+  public upperCi!: PriceList;
 
   @Ref()
   public canvas!: HTMLCanvasElement;
@@ -110,9 +116,50 @@ export default class PriceChart extends Vue {
     return [];
   }
 
+
+
+  get lowerList(): number[] {
+    if (this.lowerCi === undefined) {
+      this.lowerCi = new PriceList();
+    }
+    if (this.price == 'New') {
+      return this.lowerCi.newList;
+    }
+    if (this.price == 'Amazon') {
+      return this.lowerCi.amazonList;
+    }
+    if (this.price == 'Used') {
+      return this.lowerCi.usedList;
+    }
+    else if (this.price == 'Min Unused') {
+      return this.lowerCi.minUnusedList;
+    }
+    return [];
+  }
+
+
+  get upperList(): number[] {
+    if (this.upperCi === undefined) {
+      this.upperCi = new PriceList();
+    }
+    if (this.price == 'New') {
+      return this.upperCi.newList;
+    }
+    if (this.price == 'Amazon') {
+      return this.upperCi.amazonList;
+    }
+    if (this.price == 'Used') {
+      return this.upperCi.usedList;
+    }
+    else if (this.price == 'Min Unused') {
+      return this.upperCi.minUnusedList;
+    }
+    return [];
+  }
+
   onDraw() {
-    const minPoint = Math.min(...this.priceList, ...this.predList);
-    const maxPoint = Math.max(...this.priceList, ...this.predList);
+    const minPoint = Math.min(...this.priceList, ...this.predList, ...this.lowerList);
+    const maxPoint = Math.max(...this.priceList, ...this.predList, ...this.upperList);
     const range = maxPoint - minPoint;
 
     const pointsBetween: number = Math.floor((this.priceList.length + this.predList.length) / 15);
@@ -167,11 +214,26 @@ export default class PriceChart extends Vue {
     }
     //predictions
     for (let i = 0; i < this.predList.length-1; i++) {
+      let startWidth = (this.priceList.length-1) * widthPerPoint;
+      //mean
       ctx.beginPath();
       ctx.strokeStyle = "red";
-      let startWidth = (this.priceList.length-1) * widthPerPoint;
       ctx.moveTo(startWidth+ i * widthPerPoint, getHeight(this.predList[i]));
       ctx.lineTo(startWidth+ (i+1) * widthPerPoint, getHeight(this.predList[i+1]));
+      ctx.stroke();
+
+      //lower ci
+      ctx.beginPath();
+      ctx.strokeStyle = "pink";
+      ctx.moveTo(startWidth+ i * widthPerPoint, getHeight(this.lowerList[i]));
+      ctx.lineTo(startWidth+ (i+1) * widthPerPoint, getHeight(this.lowerList[i+1]));
+      ctx.stroke();
+
+      //upper ci
+      ctx.beginPath();
+      ctx.strokeStyle = "pink";
+      ctx.moveTo(startWidth+ i * widthPerPoint, getHeight(this.upperList[i]));
+      ctx.lineTo(startWidth+ (i+1) * widthPerPoint, getHeight(this.upperList[i+1]));
       ctx.stroke();
 
       ctx.beginPath();
