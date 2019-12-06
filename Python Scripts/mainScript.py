@@ -12,7 +12,7 @@ globals.initialize()
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("command", choices=['historic', 'predict', 'bayes', 'rate'], help="command to be run (required)")
+parser.add_argument("command", choices=['historic', 'predict', 'statsPredict', 'rate'], help="command to be run (required)")
 parser.add_argument("ASIN", help="the ASIN of interest, or 'category' to enter a category")
 parser.add_argument("time", choices=['day', 'week', 'month', 'year'], help="time period to predict", default=50, nargs='?')
 parser.add_argument("numProducts", default=50, nargs='?', help="number of products (default 50)")
@@ -44,7 +44,7 @@ elif (args.command == "predict"):
        plot_data_and_predictions(predictions, asin=args.ASIN, price=price)
        min_pred = min(predictions)
        print('Minimum price of ${} in {} days from now. MSE: {}'.format(min_pred, predictions.index(min_pred)+1), mse)
-elif (args.command == "bayes"):
+elif (args.command == "statsPredict"):
     print(predictBayes(args.ASIN))
 elif (args.command == "rate"):
     print(rate_price(args.ASIN))
