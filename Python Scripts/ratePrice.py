@@ -1,5 +1,6 @@
 import keepa
 import pandas
+import globals
 from getAccessKey import getAccessKey
 from cleanProductData import get_clean_data_for_product
 
@@ -16,6 +17,7 @@ def rate_price(asin):
     else:
         currentPrice = df.at[dflength, 'MIN_UNUSED']
         meanHistoryPrice = df.loc[:, 'MIN_UNUSED'].mean()
+        globals.rating = currentPrice / meanHistoryPrice
         return currentPrice / meanHistoryPrice
 
 def current_price(asin):
