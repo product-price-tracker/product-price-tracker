@@ -9,9 +9,22 @@ A tool for predicting prices of Amazon Products.
 4. Start Coding!
 5. If you install any additional dependencies, run `pip freeze > requirements.txt` to keep track of the libraries in your updated environment.
 
-# Running the program:
+# Running the CLI:
 1. In a command line, navigate to `Python Scripts`
 2. Run `python mainScript` with appropriate arguments. Running with no arguments will give help on what arguments are possible.
+
+# Running the Web App:
+## Running the Front End
+1. Make sure Node/NPM are installed on your computer from https://nodejs.org/en/download/
+2. Navigate into `Frontend/ppt-frontend`
+3. Run `npm install` to install dependencies
+4. Run `npm run serve` to run the server! The terminal output should say on which IP/port the server is running. By default, you can access it at `localhost:8080`.
+
+## Running the Back End
+1. Create and activate the python environment as specified above in *Getting Set up for dev*.
+2. Navigate into `Python Scripts`
+3. Run `source configFlaskMac.bat` on Mac or `configFlaskWind.bat` on Windows to run the server!. *Note*: Currently, the server must be run on the port 5000 (default) on the same IP as the front end in order for the front end to be able to communicate with the back end. 
+
 
 # Structure of Data:
 
@@ -58,6 +71,13 @@ predictNextPrice:
     predict both the minimum and maximum prices and when they will occur within
     this time period.
 
+predictSequence:
+ The purpose of this script is to make a single prediction of the sequence of
+   next prices. Doing this, we create a sequence of predicted prices for the
+   next n days in the future, and can use this prediction to predict both the
+   minimum and maximum prices and when they will occur within this time period.
+   Outputs prediction and MSE.
+
 ratePrice:
 	For the ASIN input, this function calculated a historical average price,
 	 and returns a rating of the current price in reference to the historical
@@ -70,6 +90,12 @@ getMostUnderpriced:
 	 ratePrice method. Returns a list of pairs (ASIN, priceRating) ordered
 	 by priceRating ascending (best deals first). If ratePrice returns -1
 	 for any ASIN, i.e. no price data is received, then that result is omitted.
+
+predictBayes:
+  Uses a linear point estimation to predict the sequence of next prices for n
+    days in the future, which we can use to predict both the maximum and minimum
+    prices and when they will occur. Outputs the prediction, MSE, along with 95%
+    CIs for the prediction.
 
 mainScript:
 	Runs a command-line interface from which functions can be called.
