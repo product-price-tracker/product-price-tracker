@@ -55,4 +55,4 @@ def price_data():
 @app.route('/predict-bayes')
 @cross_origin()
 def predict_bayes():
-    return str(predictBayes(request.args['asin']))
+    return str(predictBayes(asin=request.args['asin'], daysAhead=request.args['daysAhead'], price=price = request.args['price']))
